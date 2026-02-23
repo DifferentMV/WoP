@@ -22,6 +22,17 @@ select, input { padding:8px; margin:5px;}
 <button onclick="addPlayer()">+ Spieler</button>
 
 <h3>Level</h3>
+<label style="display:block; margin:8px 0;">
+  <input type="checkbox" id="timerEnabled"> Timer benutzen
+</label>
+
+<select id="timerMode">
+  <option value="off">aus</option>
+  <option value="csv">Zeit aus CSV</option>
+  <option value="60">1 Minute</option>
+  <option value="180">3 Minuten</option>
+  <option value="rand_1_3">zufällig 1–3 Minuten</option>
+</select>
 <select id="level">
 <option value="1">1 - Sanft</option>
 <option value="2">2 - Mittel</option>
@@ -139,19 +150,43 @@ function draw(type){
     document.getElementById("taskText").innerText = task.text;
     document.getElementById("result").classList.remove("hidden");
 
-    if(task.timer > 0){
-        let time = task.timer;
-        const timerDiv = document.getElementById("timer");
-        timerDiv.innerText = "Timer: " + time;
-        const interval = setInterval(()=>{
-            time--;
-            timerDiv.innerText = "Timer: " + time;
-            if(time<=0){
-                clearInterval(interval);
-                timerDiv.innerText = "Zeit!";
-            }
-        },1000);
+   const timerEnabled = document.getElementById("timerEnabled").checked;
+const timerMode = document.getElementById("timerMode").value;
+
+let chosenTimer = 0;
+
+if (timerEnabled) {
+  if (timerMode === "csv") {
+    chosenTimer = isNaN(task.timer) ? 0 : task.timer;
+  } else if (timerMode === "rand_1_3") {
+    // 1 bis 3 Minuten zufällig
+    const options = [60, 120, 180];
+    chosenTimer = options[Math.floor(Math.random() * options.length)];
+  } else if (timerMode === "off") {
+    chosenTimer = 0;
+  } else {
+    // feste Sekunden aus Dropdown (60 oder 180)
+    chosenTimer = parseInt(timerMode, 10) || 0;
+  }
+}
+
+const timerDiv = document.getElementById("timer");
+
+if (chosenTimer > 0) {
+  let time = chosenTimer;
+  timerDiv.innerText = "Timer: " + time;
+
+  const interval = setInterval(() => {
+    time--;
+    timerDiv.innerText = "Timer: " + time;
+    if (time <= 0) {
+      clearInterval(interval);
+      timerDiv.innerText = "Zeit!";
     }
+  }, 1000);
+} else {
+  timerDiv.innerText = "";
+}
 }
 
 loadTasks();
