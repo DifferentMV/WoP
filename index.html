@@ -51,8 +51,27 @@ select, input { padding:8px; margin:5px;}
 <button onclick="draw('Pflicht')">Pflicht</button>
 
 <div id="result" class="card hidden">
-<p id="taskText"></p>
-<div id="timer"></div>
+  <p id="taskText"></p>
+
+  <div style="margin-top:12px;">
+    <div style="margin-bottom:8px;">
+      <button type="button" onclick="setTimerMinutes(1)">1 min</button>
+      <button type="button" onclick="setTimerMinutes(3)">3 min</button>
+      <button type="button" onclick="setTimerMinutes(5)">5 min</button>
+    </div>
+
+    <div style="display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap;">
+      <label style="font-size:14px;">
+        Minuten:
+        <input id="timerInputMinutes" type="number" min="0" step="1" value="0" style="width:90px;">
+      </label>
+
+      <button type="button" onclick="startTaskTimer()">Timer starten</button>
+      <button type="button" onclick="stopTaskTimer()">Stop</button>
+    </div>
+
+    <div id="timer" style="margin-top:10px; font-size:18px;"></div>
+  </div>
 </div>
 
 <button onclick="nextPlayer()">Nächster Spieler</button>
@@ -149,7 +168,9 @@ function draw(type){
 
     document.getElementById("taskText").innerText = task.text;
     document.getElementById("result").classList.remove("hidden");
-
+stopTaskTimer();
+document.getElementById("timer").innerText = "";
+document.getElementById("timerInputMinutes").value = "0";
    const timerEnabled = document.getElementById("timerEnabled").checked;
 const timerMode = document.getElementById("timerMode").value;
 
@@ -172,27 +193,56 @@ if (timerEnabled) {
 
 const timerDiv = document.getElementById("timer");
 
-if (chosenTimer > 0) {
-  let time = chosenTimer;
-  timerDiv.innerText = "Timer: " + time;
+}
+let taskTimerInterval = null;
+let taskTimerRemaining = 0;
 
-  const interval = setInterval(() => {
-    time--;
-    timerDiv.innerText = "Timer: " + time;
-    if (time <= 0) {
-      clearInterval(interval);
-      timerDiv.innerText = "Zeit!";
+function setTimerMinutes(min) {
+  document.getElementById("timerInputMinutes").value = String(min);
+}
+
+function startTaskTimer() {
+  stopTaskTimer();
+
+  const mins = parseInt(document.getElementById("timerInputMinutes").value || "0", 10);
+  if (!mins || mins <= 0) {
+    document.getElementById("timer").innerText = "";
+    alert("Bitte Minuten > 0 einstellen.");
+    return;
+  }
+
+  taskTimerRemaining = mins * 60;
+  renderTaskTimer();
+
+  taskTimerInterval = setInterval(() => {
+    taskTimerRemaining--;
+    renderTaskTimer();
+
+    if (taskTimerRemaining <= 0) {
+      stopTaskTimer();
+      document.getElementById("timer").innerText = "Zeit!";
     }
   }, 1000);
-} else {
-  timerDiv.innerText = "";
-}
 }
 
+function stopTaskTimer() {
+  if (taskTimerInterval) {
+    clearInterval(taskTimerInterval);
+    taskTimerInterval = null;
+  }
+}
+
+function renderTaskTimer() {
+  const m = Math.floor(taskTimerRemaining / 60);
+  const s = taskTimerRemaining % 60;
+  document.getElementById("timer").innerText =
+    "Timer: " + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+}
 loadTasks();
 addPlayer();
 addPlayer();
 
 </script>
+  
 </body>
 </html>
