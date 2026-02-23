@@ -80,7 +80,7 @@ async function loadTasks(){
     const data = await response.text();
     const rows = data.split("\n").slice(1);
     tasks = rows.map(r => {
-        const cols = r.split(",");
+        const cols = r.split(";");
         return {
             type: cols[0],
             text: cols[1],
