@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wahrheit oder Pflicht</title>
+<style>
+body { font-family: Arial, sans-serif; background:#111; color:white; text-align:center; padding:20px;}
+button { padding:12px 20px; margin:10px; font-size:16px; cursor:pointer;}
+select, input { padding:8px; margin:5px;}
+.card { margin-top:20px; padding:20px; background:#222; border-radius:10px;}
+.hidden { display:none; }
+</style>
+</head>
+<body>
+
+<h1>Wahrheit oder Pflicht</h1>
+
+<div id="setup">
+<h2>Spieler hinzufügen</h2>
+<div id="players"></div>
+<button onclick="addPlayer()">+ Spieler</button>
+
+<h3>Level</h3>
+<select id="level">
+<option value="1">1 - Sanft</option>
+<option value="2">2 - Mittel</option>
+<option value="3">3 - Direkt</option>
+<option value="4">4 - Heavy</option>
+</select>
+
+<br><br>
+<button onclick="startGame()">Spiel starten</button>
+</div>
+
+<div id="game" class="hidden">
+<h2 id="currentPlayer"></h2>
+
+<button onclick="draw('Wahrheit')">Wahrheit</button>
+<button onclick="draw('Pflicht')">Pflicht</button>
+
+<div id="result" class="card hidden">
+<p id="taskText"></p>
+<div id="timer"></div>
+</div>
+
+<button onclick="nextPlayer()">Nächster Spieler</button>
+</div>
+
+<script>
+
+let players = [];
+let currentIndex = 0;
+let tasks = [];
+
+async function loadTasks(){
+    const response = await fetch('fragen.csv');
+    const data = await response.text();
+    const rows = data.split("\n").slice(1);
+    tasks = rows.map(r => {
+        const cols = r.split(",");
+        return {
+            type: cols[0],
+            text: cols[1],
+            level: parseInt(cols[2]),
+            allowed: cols[3],
+            target: cols[4],
+            timer: parseInt(cols[5])
+        };
+    });
+}
+
+function addPlayer(){
+    const container = document.getElementById("players");
+    const div = document.createElement("div");
+    div.innerHTML = `
+        <input placeholder="Name">
+        <select>
+            <option>männlich</option>
+            <option>weiblich</option>
+            <option>nonbinär</option>
+        </select>
+        <select>
+            <option>hetero</option>
+            <option>homo</option>
+            <option>bi</option>
+            <option>pan</option>
+        </select>
+    `;
+    container.appendChild(div);
+}
+
+function startGame(){
+    const container = document.getElementById("players").children;
+    players = [];
+    for(let p of container){
+        const name = p.children[0].value;
+        const gender = p.children[1].value;
+        const orientation = p.children[2].value;
+        if(name){
+            players.push({name, gender, orientation});
+        }
+    }
+    if(players.length < 2){
+        alert("Mindestens 2 Spieler!");
+        return;
+    }
+    currentIndex = 0;
+    document.getElementById("setup").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+    document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
+}
+
+function nextPlayer(){
+    currentIndex = (currentIndex + 1) % players.length;
+    document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
+    document.getElementById("result").classList.add("hidden");
+}
+
+function draw(type){
+    const level = parseInt(document.getElementById("level").value);
+    const active = players[currentIndex];
+    const others = players.filter((_,i)=>i!==currentIndex);
+
+    const validTasks = tasks.filter(t =>
+        t.type === type &&
+        t.level <= level &&
+        (t.allowed === "alle" || t.allowed.includes(active.orientation)) &&
+        others.some(o => t.target === "alle" || t.target === o.gender)
+    );
+
+    if(validTasks.length === 0){
+        alert("Keine passende Aufgabe gefunden");
+        return;
+    }
+
+    const task = validTasks[Math.floor(Math.random()*validTasks.length)];
+
+    document.getElementById("taskText").innerText = task.text;
+    document.getElementById("result").classList.remove("hidden");
+
+    if(task.timer > 0){
+        let time = task.timer;
+        const timerDiv = document.getElementById("timer");
+        timerDiv.innerText = "Timer: " + time;
+        const interval = setInterval(()=>{
+            time--;
+            timerDiv.innerText = "Timer: " + time;
+            if(time<=0){
+                clearInterval(interval);
+                timerDiv.innerText = "Zeit!";
+            }
+        },1000);
+    }
+}
+
+loadTasks();
+addPlayer();
+addPlayer();
+
+</script>
+</body>
+</html>
