@@ -1,0 +1,5 @@
+type,text,level,allowed,target,timer
+Wahrheit,Was findest du gerade am heißesten an deinem Mitspieler?,1,alle,alle,0
+Pflicht,Zieh ein Kleidungsstück langsam aus.,1,alle,alle,30
+Pflicht,Küss deinen Mitspieler dort, wo er es dir zeigt.,2,alle,alle,20
+Pflicht,Blas deinem Mitspieler einen.,4,homo bi pan,männlich,0
