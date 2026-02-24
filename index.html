@@ -27,6 +27,16 @@ select, input { padding:8px; margin:5px;}
 
 <h1>Wahrheit oder Pflicht</h1>
 
+  <h3>Spieleranzahl</h3>
+<select id="playerCount" onchange="setPlayerCount()">
+  <option value="2" selected>2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
+  <option value="6">6</option>
+  <option value="8">8</option>
+</select>
+<br><br>
 <div id="setup">
   <h2>Spieler hinzufügen</h2>
   <div id="players"></div>
@@ -84,6 +94,12 @@ let players = [];
 let currentIndex = 0;
 let tasks = [];
 
+  function setPlayerCount(){
+  const n = parseInt(document.getElementById("playerCount").value, 10);
+  const container = document.getElementById("players");
+  container.innerHTML = "";
+  for(let i=0;i<n;i++) addPlayer();
+}
 // ---------------- CSV Laden ----------------
 async function loadTasks(){
   const response = await fetch('fragen.csv', { cache: "no-store" });
@@ -348,6 +364,7 @@ function renderTaskTimer() {
 
 // Init
 loadTasks();
+setPlayerCount(); // erzeugt Standard = 2
 addPlayer();
 addPlayer();
 </script>
