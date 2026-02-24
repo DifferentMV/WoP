@@ -11,8 +11,6 @@
   .card { margin-top:20px; padding:20px; background:#222; border-radius:10px;}
   .hidden { display:none; }
 
-  #players > div { margin-bottom:8px; }
-
   #targetsBox{
     margin-top:10px;
     font-size:14px;
@@ -31,12 +29,17 @@
 
 <div id="setup">
   <h3>Spieleranzahl</h3>
-  <select id="playerCount"></select>
-  <br><br>
+  <select id="playerCount">
+    <option value="2" selected>2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="8">8</option>
+  </select>
 
   <h2>Spieler hinzufügen</h2>
   <div id="players"></div>
-  <button type="button" onclick="addPlayer()">+ Spieler</button>
 
   <h3>Level</h3>
   <select id="level">
@@ -48,24 +51,24 @@
   </select>
 
   <br><br>
-  <button type="button" onclick="startGame()">Spiel starten</button>
+  <button id="btnStart">Spiel starten</button>
 </div>
 
 <div id="game" class="hidden">
   <h2 id="currentPlayer"></h2>
 
-  <button type="button" onclick="draw('Wahrheit')">Wahrheit</button>
-  <button type="button" onclick="draw('Pflicht')">Pflicht</button>
+  <button id="btnTruth">Wahrheit</button>
+  <button id="btnDare">Pflicht</button>
 
   <div id="result" class="card hidden">
-    <p id="taskText" style="font-size:18px;"></p>
+    <p id="taskText"></p>
     <div id="targetsBox"></div>
 
     <div style="margin-top:12px;">
       <div style="margin-bottom:8px;">
-        <button type="button" onclick="setTimerMinutes(1)">1 min</button>
-        <button type="button" onclick="setTimerMinutes(3)">3 min</button>
-        <button type="button" onclick="setTimerMinutes(5)">5 min</button>
+        <button type="button" id="t1">1 min</button>
+        <button type="button" id="t3">3 min</button>
+        <button type="button" id="t5">5 min</button>
       </div>
 
       <div style="display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap;">
@@ -74,15 +77,15 @@
           <input id="timerInputMinutes" type="number" min="0" step="1" value="0" style="width:90px;">
         </label>
 
-        <button type="button" onclick="startTaskTimer()">Timer starten</button>
-        <button type="button" onclick="stopTaskTimer()">Stop</button>
+        <button type="button" id="btnTimerStart">Timer starten</button>
+        <button type="button" id="btnTimerStop">Stop</button>
       </div>
 
       <div id="timer" style="margin-top:10px; font-size:18px;"></div>
     </div>
   </div>
 
-  <button type="button" onclick="nextPlayer()">Nächster Spieler</button>
+  <button id="btnNext">Nächster Spieler</button>
 </div>
 
 <script>
@@ -94,121 +97,20 @@ let currentIndex = 0;
 let tasks = [];
 
 /* =========================
-   Setup UI
+   Helpers
 ========================= */
-function initPlayerCount(){
-  const sel = document.getElementById("playerCount");
-  const options = [2,3,4,5,6,8];
-  sel.innerHTML = "";
-  for(const n of options){
-    const o = document.createElement("option");
-    o.value = String(n);
-    o.textContent = String(n);
-    sel.appendChild(o);
-  }
-  sel.value = "2";
-  sel.addEventListener("change", setPlayerCount);
+const $ = (id) => document.getElementById(id);
+
+function normalize(s){
+  return String(s ?? "").trim().toLowerCase();
 }
 
-function setPlayerCount(){
-  const n = parseInt(document.getElementById("playerCount").value, 10);
-  const container = document.getElementById("players");
-  container.innerHTML = "";
-  for(let i=0;i<n;i++) addPlayer();
+function parseAllowedList(s){
+  const v = normalize(s);
+  if(!v || v === "alle") return ["alle"];
+  return v.split(",").map(x=>x.trim()).filter(Boolean);
 }
 
-function addPlayer(){
-  const container = document.getElementById("players");
-  const div = document.createElement("div");
-  div.innerHTML = `
-    <input placeholder="Name" style="width:200px;">
-    <select>
-      <option>männlich</option>
-      <option>weiblich</option>
-      <option>nonbinär</option>
-    </select>
-    <select>
-      <option>hetero</option>
-      <option>homo</option>
-      <option>bi</option>
-      <option>pan</option>
-      <option>offen</option>
-    </select>
-  `;
-  container.appendChild(div);
-}
-
-/* =========================
-   CSV Laden
-   Header: type;text;level;wer;allowed;target;timer;zieltyp
-========================= */
-async function loadTasks(){
-  const response = await fetch('fragen.csv', { cache: "no-store" });
-  if(!response.ok) throw new Error("fragen.csv nicht gefunden.");
-  const data = await response.text();
-
-  const lines = data.split(/\r?\n/).filter(l => l.trim().length > 0);
-  if(lines.length < 2) { tasks = []; return; }
-
-  const header = lines.shift();
-  const sep = header.includes(";") ? ";" : ",";
-
-  tasks = lines.map(line => {
-    const cols = line.split(sep).map(c => (c ?? "").trim());
-    return {
-      type: cols[0] || "",
-      text: cols[1] || "",
-      level: Number(cols[2] || 0),
-      wer: (cols[3] || "alle").trim(),
-      allowed: (cols[4] || "alle").trim(),
-      target: (cols[5] || "alle").trim(),
-      timer: Number(cols[6] || 0),
-      zieltyp: (cols[7] || "Selbst").trim()
-    };
-  }).filter(t => t.type && t.text && t.level > 0);
-}
-
-/* =========================
-   Spielstart / Turn
-========================= */
-function startGame(){
-  const rows = document.getElementById("players").children;
-  players = [];
-
-  for(const r of rows){
-    const name = r.children[0].value.trim();
-    const gender = r.children[1].value;
-    const orientation = r.children[2].value;
-    if(name){
-      players.push({name, gender, orientation});
-    }
-  }
-  if(players.length < 2){
-    alert("Mindestens 2 Spieler!");
-    return;
-  }
-
-  currentIndex = 0;
-  document.getElementById("setup").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-  document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
-
-  document.getElementById("result").classList.add("hidden");
-  hideTargets();
-  stopTaskTimer();
-}
-
-function nextPlayer(){
-  currentIndex = (currentIndex + 1) % players.length;
-  document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
-  document.getElementById("result").classList.add("hidden");
-  hideTargets();
-  stopTaskTimer();
-}
-
-/* =========================
-   Mehrspieler / Targets
-========================= */
 function shuffle(arr){
   const a = arr.slice();
   for(let i=a.length-1;i>0;i--){
@@ -226,13 +128,13 @@ function formatNames(names){
 }
 
 function hideTargets(){
-  const box = document.getElementById("targetsBox");
+  const box = $("targetsBox");
   box.style.display = "none";
   box.innerHTML = "";
 }
 
 function showTargets(names){
-  const box = document.getElementById("targetsBox");
+  const box = $("targetsBox");
   if(!names || names.length === 0){
     hideTargets();
     return;
@@ -241,55 +143,163 @@ function showTargets(names){
   box.innerHTML = `<b>Beteiligte:</b> ${formatNames(names)}`;
 }
 
-// Targets nach Geschlecht (task.target) filtern
+/* =========================
+   CSV Laden
+   Erwarteter Header:
+   type;text;level;wer;allowed;target;timer;zieltyp
+========================= */
+async function loadTasks(){
+  const response = await fetch("fragen.csv", { cache: "no-store" });
+  if(!response.ok) throw new Error("fragen.csv nicht gefunden (muss neben index.html liegen).");
+
+  const data = await response.text();
+  const lines = data.split(/\r?\n/).filter(l => l.trim().length > 0);
+  if(lines.length < 2) { tasks = []; return; }
+
+  const header = lines.shift();
+  const sep = header.includes(";") ? ";" : ",";
+  const h = header.split(sep).map(x => normalize(x));
+
+  const idx = {
+    type: h.indexOf("type"),
+    text: h.indexOf("text"),
+    level: h.indexOf("level"),
+    wer: h.indexOf("wer"),
+    allowed: h.indexOf("allowed"),
+    target: h.indexOf("target"),
+    timer: h.indexOf("timer"),
+    zieltyp: h.indexOf("zieltyp"),
+  };
+
+  // Minimal: type/text/level müssen existieren
+  if(idx.type < 0 || idx.text < 0 || idx.level < 0){
+    throw new Error("CSV-Header muss mindestens enthalten: type, text, level (zusätzlich: wer, allowed, target, timer, zieltyp).");
+  }
+
+  tasks = lines.map(line => {
+    const cols = line.split(sep).map(c => String(c ?? "").trim());
+    const t = {
+      type: cols[idx.type] || "",
+      text: cols[idx.text] || "",
+      level: Number(cols[idx.level] || 0) || 0,
+
+      // neu/optional:
+      wer: (idx.wer >= 0 ? cols[idx.wer] : "alle") || "alle",
+      allowed: (idx.allowed >= 0 ? cols[idx.allowed] : "alle") || "alle",
+      target: (idx.target >= 0 ? cols[idx.target] : "alle") || "alle",
+      timer: Number((idx.timer >= 0 ? cols[idx.timer] : 0) || 0) || 0,
+      zieltyp: (idx.zieltyp >= 0 ? cols[idx.zieltyp] : "Selbst") || "Selbst",
+    };
+    return t;
+  }).filter(t => t.type && t.text && t.level > 0);
+}
+
+/* =========================
+   Spieler UI
+========================= */
+function addPlayerRow(){
+  const container = $("players");
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <input placeholder="Name">
+    <select>
+      <option>männlich</option>
+      <option>weiblich</option>
+      <option>nonbinär</option>
+    </select>
+    <select>
+      <option>hetero</option>
+      <option>homo</option>
+      <option>bi</option>
+      <option>pan</option>
+      <option>offen</option>
+    </select>
+  `;
+  container.appendChild(div);
+}
+
+function setPlayerCount(){
+  const n = parseInt($("playerCount").value, 10);
+  const container = $("players");
+  container.innerHTML = "";
+  for(let i=0;i<n;i++) addPlayerRow();
+}
+
+function startGame(){
+  const rows = $("players").children;
+  players = [];
+
+  for(const row of rows){
+    const name = row.children[0].value.trim();
+    const gender = row.children[1].value;         // "männlich/weiblich/nonbinär"
+    const orientation = row.children[2].value;    // "hetero/homo/bi/pan/offen"
+    if(name) players.push({name, gender, orientation});
+  }
+
+  if(players.length < 2){
+    alert("Mindestens 2 Spieler (mit Namen)!");
+    return;
+  }
+
+  currentIndex = 0;
+  $("setup").classList.add("hidden");
+  $("game").classList.remove("hidden");
+  $("currentPlayer").innerText = players[currentIndex].name + " ist dran";
+}
+
+/* =========================
+   Targets / Mehrspieler
+========================= */
 function eligibleTargetsForTask(task, activeIndex){
+  const active = players[activeIndex];
   const others = players
     .map((p, idx) => ({...p, idx}))
     .filter(p => p.idx !== activeIndex);
 
-  return others.filter(o => task.target === "alle" || o.gender === task.target);
+  const targetRule = normalize(task.target);
+  if(targetRule === "alle") return others;
+
+  // target ist ein Gender: männlich/weiblich/nonbinär
+  return others.filter(o => normalize(o.gender) === targetRule);
 }
 
 function pickTargetsForTask(task, activeIndex){
-  const zieltyp = (task.zieltyp || "Selbst").trim();
+  const zieltyp = (task.zieltyp || "Selbst").trim(); // Selbst/Einzel/Zwei/Gruppe/BeliebigViele
+  const eligible = shuffle(eligibleTargetsForTask(task, activeIndex));
+  const names = eligible.map(e => e.name);
+
   if(zieltyp === "Selbst") return [];
-
-  const pool = shuffle(eligibleTargetsForTask(task, activeIndex));
-  const n = pool.length;
-
-  const names = (count) => pool.slice(0, Math.min(count, n)).map(x => x.name);
-
-  if(zieltyp === "Einzel") return names(1);
-  if(zieltyp === "Zwei") return names(2);
-  if(zieltyp === "Gruppe") return pool.map(x => x.name);
-
+  if(zieltyp === "Einzel") return names.slice(0, 1);
+  if(zieltyp === "Zwei")   return names.slice(0, 2);
+  if(zieltyp === "Gruppe") return names;
   if(zieltyp === "BeliebigViele"){
-    if(n <= 2) return pool.map(x => x.name);
-    const count = 2 + Math.floor(Math.random() * (n - 1)); // 2..n
-    return names(count);
+    if(names.length <= 2) return names;
+    const count = 2 + Math.floor(Math.random() * (names.length - 1)); // 2..n
+    return names.slice(0, count);
   }
   return [];
 }
 
 /* =========================
-   Filter / Draw
+   Task Matching
 ========================= */
-function taskMatches(task, type, level, active, activeIndex){
+function taskMatches(task, type, selectedLevel, active, activeIndex){
   if(task.type !== type) return false;
 
- // Level: NUR genau das gewählte Level
-if(task.level !== level) return false;
+  // Level: nur <= selected
+  if(task.level <= 0 || task.level > selectedLevel) return false;
 
-  // "wer": welches Geschlecht darf diese Karte als aktiver Spieler ziehen?
-  // erlaubt: männlich / weiblich / nonbinär / alle
-  const wer = (task.wer || "alle").trim();
-  if(!(wer === "alle" || wer === active.gender)) return false;
+  // wer: muss zum aktiven Gender passen oder "alle"
+  const werRule = normalize(task.wer || "alle");
+  const activeGender = normalize(active.gender);
+  if(!(werRule === "alle" || werRule === activeGender)) return false;
 
-  // allowed: Orientierung des aktiven Spielers
-  const allowed = (task.allowed || "alle").trim();
-  if(!(allowed === "alle" || allowed.includes(active.orientation))) return false;
+  // allowed: muss aktive Orientierung enthalten oder "alle"
+  const allowedList = parseAllowedList(task.allowed);
+  const activeOri = normalize(active.orientation);
+  if(!(allowedList.includes("alle") || allowedList.includes(activeOri))) return false;
 
-  // Wenn zieltyp != Selbst, muss es passende Targets geben
+  // Wenn zieltyp Targets verlangt, müssen genug passende Targets existieren
   const zieltyp = (task.zieltyp || "Selbst").trim();
   const eligibleCount = eligibleTargetsForTask(task, activeIndex).length;
 
@@ -301,45 +311,65 @@ if(task.level !== level) return false;
     0;
 
   if(need > 0 && eligibleCount < need) return false;
+
   return true;
 }
 
 function applyPlaceholders(text, activeName, targetNames){
-  const t1 = targetNames[0] || "";
-  const t2 = targetNames[1] || "";
-  const all = formatNames(targetNames);
-  return String(text)
-    .replaceAll("{{ACTIVE}}", activeName)
-    .replaceAll("{{T1}}", t1)
-    .replaceAll("{{T2}}", t2)
-    .replaceAll("{{TARGETS}}", all);
+  let out = String(text);
+
+  // Optional: Platzhalter
+  out = out.replaceAll("{active}", activeName);
+  if(targetNames && targetNames.length){
+    out = out.replaceAll("{targets}", formatNames(targetNames));
+    out = out.replaceAll("{t1}", targetNames[0] || "");
+    out = out.replaceAll("{t2}", targetNames[1] || "");
+    out = out.replaceAll("{t3}", targetNames[2] || "");
+  }else{
+    out = out.replaceAll("{targets}", "");
+    out = out.replaceAll("{t1}", "");
+    out = out.replaceAll("{t2}", "");
+    out = out.replaceAll("{t3}", "");
+  }
+  return out;
 }
 
+/* =========================
+   Draw
+========================= */
 function draw(type){
-  const level = Number(document.getElementById("level").value) || 1;
+  const selectedLevel = Number($("level").value) || 1;
   const active = players[currentIndex];
 
-  const valid = tasks.filter(t => taskMatches(t, type, level, active, currentIndex));
+  const valid = tasks.filter(t => taskMatches(t, type, selectedLevel, active, currentIndex));
 
   if(valid.length === 0){
-    alert("Keine passende Aufgabe gefunden");
+    alert("Keine passende Aufgabe gefunden (prüfe: Level / wer / allowed / target / zieltyp).");
     return;
   }
 
-  // zufällig ziehen
-  const chosen = valid[Math.floor(Math.random() * valid.length)];
+  const task = valid[Math.floor(Math.random() * valid.length)];
 
-  const targetNames = pickTargetsForTask(chosen, currentIndex);
+  const targetNames = pickTargetsForTask(task, currentIndex);
   showTargets(targetNames);
 
-  const finalText = applyPlaceholders(chosen.text, active.name, targetNames);
-  document.getElementById("taskText").innerText = finalText;
-  document.getElementById("result").classList.remove("hidden");
+  const finalText = applyPlaceholders(task.text, active.name, targetNames);
+  $("taskText").innerText = finalText;
+
+  $("result").classList.remove("hidden");
 
   // Timer reset
   stopTaskTimer();
-  document.getElementById("timer").innerText = "";
-  document.getElementById("timerInputMinutes").value = "0";
+  $("timer").innerText = "";
+  $("timerInputMinutes").value = "0";
+}
+
+function nextPlayer(){
+  currentIndex = (currentIndex + 1) % players.length;
+  $("currentPlayer").innerText = players[currentIndex].name + " ist dran";
+  $("result").classList.add("hidden");
+  hideTargets();
+  stopTaskTimer();
 }
 
 /* =========================
@@ -348,16 +378,16 @@ function draw(type){
 let taskTimerInterval = null;
 let taskTimerRemaining = 0;
 
-function setTimerMinutes(min){
-  document.getElementById("timerInputMinutes").value = String(min);
+function setTimerMinutes(min) {
+  $("timerInputMinutes").value = String(min);
 }
 
-function startTaskTimer(){
+function startTaskTimer() {
   stopTaskTimer();
 
-  const mins = parseInt(document.getElementById("timerInputMinutes").value || "0", 10);
-  if(!mins || mins <= 0){
-    document.getElementById("timer").innerText = "";
+  const mins = parseInt($("timerInputMinutes").value || "0", 10);
+  if (!mins || mins <= 0) {
+    $("timer").innerText = "";
     alert("Bitte Minuten > 0 einstellen.");
     return;
   }
@@ -368,40 +398,50 @@ function startTaskTimer(){
   taskTimerInterval = setInterval(() => {
     taskTimerRemaining--;
     renderTaskTimer();
-    if(taskTimerRemaining <= 0){
+
+    if (taskTimerRemaining <= 0) {
       stopTaskTimer();
-      document.getElementById("timer").innerText = "Zeit!";
+      $("timer").innerText = "Zeit!";
     }
   }, 1000);
 }
 
-function stopTaskTimer(){
-  if(taskTimerInterval){
+function stopTaskTimer() {
+  if (taskTimerInterval) {
     clearInterval(taskTimerInterval);
     taskTimerInterval = null;
   }
 }
 
-function renderTaskTimer(){
+function renderTaskTimer() {
   const m = Math.floor(taskTimerRemaining / 60);
   const s = taskTimerRemaining % 60;
-  document.getElementById("timer").innerText =
+  $("timer").innerText =
     "Timer: " + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
 }
 
 /* =========================
-   Init
+   Wire up / Init
 ========================= */
-(async function init(){
-  initPlayerCount();
-  setPlayerCount();      // erzeugt direkt die Felder (damit du nicht “leere” UI siehst)
+$("playerCount").addEventListener("change", setPlayerCount);
+$("btnStart").addEventListener("click", startGame);
+$("btnTruth").addEventListener("click", () => draw("Wahrheit"));
+$("btnDare").addEventListener("click", () => draw("Pflicht"));
+$("btnNext").addEventListener("click", nextPlayer);
 
+$("t1").addEventListener("click", () => setTimerMinutes(1));
+$("t3").addEventListener("click", () => setTimerMinutes(3));
+$("t5").addEventListener("click", () => setTimerMinutes(5));
+$("btnTimerStart").addEventListener("click", startTaskTimer);
+$("btnTimerStop").addEventListener("click", stopTaskTimer);
+
+(async () => {
   try{
     await loadTasks();
   }catch(e){
-    console.error(e);
-    alert("Fehler beim Laden von fragen.csv: " + (e.message || e));
+    alert("Fehler beim Laden der CSV: " + (e.message || e));
   }
+  setPlayerCount(); // erzeugt Spielerfelder
 })();
 </script>
 
