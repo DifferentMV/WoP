@@ -43,13 +43,13 @@ select, input { padding:8px; margin:5px;}
   <button onclick="addPlayer()">+ Spieler</button>
 
   <h3>Level</h3>
-  <select id="level">
-    <option value="1">1 - Sanft</option>
-    <option value="2">2 - Mittel</option>
-    <option value="3">3 - Direkt</option>
-    <option value="4">4 - Heavy</option>
-    <option value="5">5 - Pervers & Dirty</option>
-  </select>
+ <select id="level">
+  <option value="1">1 - Sanft</option>
+  <option value="2">2 - Mittel</option>
+  <option value="3">3 - Direkt</option>
+  <option value="4">4 - Heavy</option>
+  <option value="5">5 - Pervers & Dirty</option>
+</select>
   <br><br>
 
   <button onclick="startGame()">Spiel starten</button>
@@ -267,10 +267,20 @@ function taskMatchesBasics(task, type, level, active, activeIndex){
 }
 
 function draw(type){
-  const level = parseInt(document.getElementById("level").value, 10);
+ const level = Number(document.getElementById("level").value) || 1;
   const active = players[currentIndex];
 
-  const validTasks = tasks.filter(t => taskMatchesBasics(t, type, level, active, currentIndex));
+const validTasks = tasks.filter(t =>
+  t.type === type &&
+  t.level > 0 &&
+  t.level <= level &&
+  (t.allowed === "alle" || (t.allowed || "").includes(active.orientation)) &&
+  (
+    // target-Prüfung: entweder "alle" oder es gibt mindestens 1 passenden anderen
+    t.target === "alle" ||
+    others.some(o => o.gender === t.target)
+  )
+);
 
   if(validTasks.length === 0){
     alert("Keine passende Aufgabe gefunden");
@@ -364,7 +374,10 @@ function renderTaskTimer() {
 
 // Init
 loadTasks();
-setPlayerCount(); // erzeugt Standard = 2
+level: Number(cols[2]) || 0,
+  t.level > 0 && t.level <= level
+  setPlayerCount(); 
+  
 addPlayer();
 addPlayer();
 </script>
