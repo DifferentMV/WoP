@@ -10,6 +10,17 @@ button { padding:12px 20px; margin:10px; font-size:16px; cursor:pointer;}
 select, input { padding:8px; margin:5px;}
 .card { margin-top:20px; padding:20px; background:#222; border-radius:10px;}
 .hidden { display:none; }
+
+#targetsBox{
+  margin-top:10px;
+  font-size:14px;
+  opacity:.92;
+  padding:10px 12px;
+  background:#1a1a1a;
+  border:1px solid #333;
+  border-radius:10px;
+  display:none;
+}
 </style>
 </head>
 <body>
@@ -17,175 +28,279 @@ select, input { padding:8px; margin:5px;}
 <h1>Wahrheit oder Pflicht</h1>
 
 <div id="setup">
-<h2>Spieler hinzufügen</h2>
-<div id="players"></div>
-<button onclick="addPlayer()">+ Spieler</button>
+  <h2>Spieler hinzufügen</h2>
+  <div id="players"></div>
+  <button onclick="addPlayer()">+ Spieler</button>
 
-<h3>Level</h3>
-<select id="level">
-  <option value="1">1 - Sanft</option>
-  <option value="2">2 - Mittel</option>
-  <option value="3">3 - Direkt</option>
-  <option value="4">4 - Heavy</option>
-  <option value="5">5 - Pervers & Dirty</option>
-</select>
-<br><br>
+  <h3>Level</h3>
+  <select id="level">
+    <option value="1">1 - Sanft</option>
+    <option value="2">2 - Mittel</option>
+    <option value="3">3 - Direkt</option>
+    <option value="4">4 - Heavy</option>
+    <option value="5">5 - Pervers & Dirty</option>
+  </select>
+  <br><br>
 
-
-<br><br>
-<button onclick="startGame()">Spiel starten</button>
+  <button onclick="startGame()">Spiel starten</button>
 </div>
 
 <div id="game" class="hidden">
-<h2 id="currentPlayer"></h2>
+  <h2 id="currentPlayer"></h2>
 
-<button onclick="draw('Wahrheit')">Wahrheit</button>
-<button onclick="draw('Pflicht')">Pflicht</button>
+  <button onclick="draw('Wahrheit')">Wahrheit</button>
+  <button onclick="draw('Pflicht')">Pflicht</button>
 
-<div id="result" class="card hidden">
-  <p id="taskText"></p>
+  <div id="result" class="card hidden">
+    <p id="taskText"></p>
+    <div id="targetsBox"></div>
 
-  <div style="margin-top:12px;">
-    <div style="margin-bottom:8px;">
-      <button type="button" onclick="setTimerMinutes(1)">1 min</button>
-      <button type="button" onclick="setTimerMinutes(3)">3 min</button>
-      <button type="button" onclick="setTimerMinutes(5)">5 min</button>
+    <div style="margin-top:12px;">
+      <div style="margin-bottom:8px;">
+        <button type="button" onclick="setTimerMinutes(1)">1 min</button>
+        <button type="button" onclick="setTimerMinutes(3)">3 min</button>
+        <button type="button" onclick="setTimerMinutes(5)">5 min</button>
+      </div>
+
+      <div style="display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap;">
+        <label style="font-size:14px;">
+          Minuten:
+          <input id="timerInputMinutes" type="number" min="0" step="1" value="0" style="width:90px;">
+        </label>
+
+        <button type="button" onclick="startTaskTimer()">Timer starten</button>
+        <button type="button" onclick="stopTaskTimer()">Stop</button>
+      </div>
+
+      <div id="timer" style="margin-top:10px; font-size:18px;"></div>
     </div>
-
-    <div style="display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap;">
-      <label style="font-size:14px;">
-        Minuten:
-        <input id="timerInputMinutes" type="number" min="0" step="1" value="0" style="width:90px;">
-      </label>
-
-      <button type="button" onclick="startTaskTimer()">Timer starten</button>
-      <button type="button" onclick="stopTaskTimer()">Stop</button>
-    </div>
-
-    <div id="timer" style="margin-top:10px; font-size:18px;"></div>
   </div>
-</div>
 
-<button onclick="nextPlayer()">Nächster Spieler</button>
+  <button onclick="nextPlayer()">Nächster Spieler</button>
 </div>
 
 <script>
-
 let players = [];
 let currentIndex = 0;
 let tasks = [];
 
+// ---------------- CSV Laden ----------------
 async function loadTasks(){
-    const response = await fetch('fragen.csv');
-    const data = await response.text();
-    const rows = data.split("\n").slice(1);
-    tasks = rows.map(r => {
-        const cols = r.split(";");
-        return {
-            type: cols[0],
-            text: cols[1],
-            level: parseInt(cols[2]),
-            allowed: cols[3],
-            target: cols[4],
-            timer: parseInt(cols[5])
-        };
-    });
+  const response = await fetch('fragen.csv', { cache: "no-store" });
+  const data = await response.text();
+
+  // Robust gegen Windows-Zeilenenden & leere Zeilen
+  const lines = data.split(/\r?\n/).filter(l => l.trim().length > 0);
+
+  // Header entfernen
+  lines.shift();
+
+  tasks = lines.map(line => {
+    const cols = line.split(";").map(c => (c ?? "").trim());
+    return {
+      type: cols[0] || "",
+      text: cols[1] || "",
+      level: parseInt(cols[2] || "0", 10) || 0,
+      allowed: cols[3] || "alle",
+      target: cols[4] || "alle",
+      timer: parseInt(cols[5] || "0", 10) || 0,
+      zieltyp: (cols[6] || "").trim() // optional: Selbst/Einzel/Zwei/Gruppe/BeliebigViele
+    };
+  }).filter(t => t.type && t.text);
 }
 
+// ---------------- Spieler UI ----------------
 function addPlayer(){
-    const container = document.getElementById("players");
-    const div = document.createElement("div");
-    div.innerHTML = `
-        <input placeholder="Name">
-        <select>
-            <option>männlich</option>
-            <option>weiblich</option>
-            <option>nonbinär</option>
-        </select>
-        <select>
-            <option>hetero</option>
-            <option>homo</option>
-            <option>bi</option>
-            <option>pan</option>
-        </select>
-    `;
-    container.appendChild(div);
+  const container = document.getElementById("players");
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <input placeholder="Name">
+    <select>
+      <option>männlich</option>
+      <option>weiblich</option>
+      <option>nonbinär</option>
+    </select>
+    <select>
+      <option>hetero</option>
+      <option>homo</option>
+      <option>bi</option>
+      <option>pan</option>
+      <option>offen</option>
+    </select>
+  `;
+  container.appendChild(div);
 }
 
 function startGame(){
-    const container = document.getElementById("players").children;
-    players = [];
-    for(let p of container){
-        const name = p.children[0].value;
-        const gender = p.children[1].value;
-        const orientation = p.children[2].value;
-        if(name){
-            players.push({name, gender, orientation});
-        }
+  const container = document.getElementById("players").children;
+  players = [];
+
+  for(let p of container){
+    const name = p.children[0].value.trim();
+    const gender = p.children[1].value;
+    const orientation = p.children[2].value;
+    if(name){
+      players.push({name, gender, orientation});
     }
-    if(players.length < 2){
-        alert("Mindestens 2 Spieler!");
-        return;
-    }
-    currentIndex = 0;
-    document.getElementById("setup").classList.add("hidden");
-    document.getElementById("game").classList.remove("hidden");
-    document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
+  }
+
+  if(players.length < 2){
+    alert("Mindestens 2 Spieler!");
+    return;
+  }
+
+  currentIndex = 0;
+  document.getElementById("setup").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+  document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
 }
 
 function nextPlayer(){
-    currentIndex = (currentIndex + 1) % players.length;
-    document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
-    document.getElementById("result").classList.add("hidden");
+  currentIndex = (currentIndex + 1) % players.length;
+  document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
+  document.getElementById("result").classList.add("hidden");
+  hideTargets();
+  stopTaskTimer();
+}
+
+// ---------------- Targets (Mehrspieler) ----------------
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function formatNames(names){
+  if(!names || names.length===0) return "";
+  if(names.length===1) return names[0];
+  if(names.length===2) return `${names[0]} & ${names[1]}`;
+  return `${names.slice(0,-1).join(", ")} & ${names[names.length-1]}`;
+}
+
+function hideTargets(){
+  const box = document.getElementById("targetsBox");
+  box.style.display = "none";
+  box.innerHTML = "";
+}
+
+function showTargets(names){
+  const box = document.getElementById("targetsBox");
+  if(!names || names.length === 0){
+    hideTargets();
+    return;
+  }
+  box.style.display = "block";
+  box.innerHTML = `<b>Beteiligte:</b> ${formatNames(names)}`;
+}
+
+// Nimmt nur Spieler, die zur Task-Target-Gender-Regel passen (target=alle oder gender)
+function eligibleTargetsForTask(task, activeIndex){
+  const active = players[activeIndex];
+  const others = players
+    .map((p, idx) => ({...p, idx}))
+    .filter(p => p.idx !== activeIndex);
+
+  // gender filter: task.target ist "alle" oder muss gender matchen
+  const byGender = others.filter(o => task.target === "alle" || o.gender === task.target);
+
+  // optional: du könntest hier zusätzlich noch Orientierung/Allowed der TARGETS prüfen,
+  // aktuell prüfst du allowed nur für den aktiven Spieler (wie bisher).
+  return byGender;
+}
+
+function pickTargetsForTask(task, activeIndex){
+  const z = (task.zieltyp || "").trim();
+  const zieltyp = z.length ? z : "Selbst";
+
+  const eligible = eligibleTargetsForTask(task, activeIndex);
+  const pool = shuffle(eligible);
+
+  if(zieltyp === "Selbst") return [];
+  if(zieltyp === "Einzel") return pool.slice(0, Math.min(1, pool.length)).map(x => x.name);
+  if(zieltyp === "Zwei")   return pool.slice(0, Math.min(2, pool.length)).map(x => x.name);
+  if(zieltyp === "Gruppe") return pool.map(x => x.name);
+
+  if(zieltyp === "BeliebigViele"){
+    const n = pool.length;
+    if(n <= 2) return pool.map(x => x.name);
+    const count = 2 + Math.floor(Math.random() * (n - 1)); // 2..n
+    return pool.slice(0, count).map(x => x.name);
+  }
+
+  // Fallback
+  return [];
+}
+
+// ---------------- Draw / Filter ----------------
+function taskMatchesBasics(task, type, level, active, activeIndex){
+  if(task.type !== type) return false;
+  if(task.level > level) return false;
+
+  // allowed = "alle" oder enthält Orientierung des aktiven
+  if(!(task.allowed === "alle" || task.allowed.includes(active.orientation))) return false;
+
+  // target muss überhaupt irgendwen treffen können (sonst sinnlos)
+  const eligible = eligibleTargetsForTask(task, activeIndex);
+  if(eligible.length === 0 && ((task.zieltyp || "").trim() !== "" && (task.zieltyp || "").trim() !== "Selbst")){
+    return false; // braucht Targets, aber keine vorhanden
+  }
+  return true;
 }
 
 function draw(type){
-    const level = parseInt(document.getElementById("level").value);
-    const active = players[currentIndex];
-    const others = players.filter((_,i)=>i!==currentIndex);
+  const level = parseInt(document.getElementById("level").value, 10);
+  const active = players[currentIndex];
 
-    const validTasks = tasks.filter(t =>
-        t.type === type &&
-        t.level <= level &&
-        (t.allowed === "alle" || t.allowed.includes(active.orientation)) &&
-        others.some(o => t.target === "alle" || t.target === o.gender)
-    );
+  const validTasks = tasks.filter(t => taskMatchesBasics(t, type, level, active, currentIndex));
 
-    if(validTasks.length === 0){
-        alert("Keine passende Aufgabe gefunden");
-        return;
-    }
-
-    const task = validTasks[Math.floor(Math.random()*validTasks.length)];
-
-    document.getElementById("taskText").innerText = task.text;
-    document.getElementById("result").classList.remove("hidden");
-stopTaskTimer();
-document.getElementById("timer").innerText = "";
-document.getElementById("timerInputMinutes").value = "0";
-   const timerEnabled = document.getElementById("timerEnabled").checked;
-const timerMode = document.getElementById("timerMode").value;
-
-let chosenTimer = 0;
-
-if (timerEnabled) {
-  if (timerMode === "csv") {
-    chosenTimer = isNaN(task.timer) ? 0 : task.timer;
-  } else if (timerMode === "rand_1_3") {
-    // 1 bis 3 Minuten zufällig
-    const options = [60, 120, 180];
-    chosenTimer = options[Math.floor(Math.random() * options.length)];
-  } else if (timerMode === "off") {
-    chosenTimer = 0;
-  } else {
-    // feste Sekunden aus Dropdown (60 oder 180)
-    chosenTimer = parseInt(timerMode, 10) || 0;
+  if(validTasks.length === 0){
+    alert("Keine passende Aufgabe gefunden");
+    return;
   }
+
+  // Wir versuchen ein paar Mal, eine Aufgabe zu finden, bei der Targets auch wirklich möglich sind.
+  // (z.B. zieltyp=Zwei aber es gibt nur 1 passenden Target)
+  let chosen = null;
+  for(let tries=0; tries<30; tries++){
+    const t = validTasks[Math.floor(Math.random()*validTasks.length)];
+    const zieltyp = ((t.zieltyp||"").trim() || "Selbst");
+
+    const eligibleCount = eligibleTargetsForTask(t, currentIndex).length;
+    const need =
+      zieltyp === "Zwei" ? 2 :
+      zieltyp === "Einzel" ? 1 :
+      zieltyp === "Gruppe" ? 1 :
+      zieltyp === "BeliebigViele" ? 2 :
+      0;
+
+    if(eligibleCount >= need){
+      chosen = t;
+      break;
+    }
+  }
+
+  if(!chosen){
+    alert("Keine passende Aufgabe gefunden (Targets passen nicht zur Spieler-Konstellation).");
+    return;
+  }
+
+  document.getElementById("taskText").innerText = chosen.text;
+  document.getElementById("result").classList.remove("hidden");
+
+  // Targets anzeigen (B)
+  const targetNames = pickTargetsForTask(chosen, currentIndex);
+  showTargets(targetNames);
+
+  // Timer reset
+  stopTaskTimer();
+  document.getElementById("timer").innerText = "";
+  document.getElementById("timerInputMinutes").value = "0";
 }
 
-const timerDiv = document.getElementById("timer");
-
-}
+// ---------------- Timer ----------------
 let taskTimerInterval = null;
 let taskTimerRemaining = 0;
 
@@ -230,11 +345,12 @@ function renderTaskTimer() {
   document.getElementById("timer").innerText =
     "Timer: " + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
 }
+
+// Init
 loadTasks();
 addPlayer();
 addPlayer();
-
 </script>
-  
+
 </body>
 </html>
