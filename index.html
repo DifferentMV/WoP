@@ -277,8 +277,8 @@ function pickTargetsForTask(task, activeIndex){
 function taskMatches(task, type, level, active, activeIndex){
   if(task.type !== type) return false;
 
-  // Level: bis zum gewählten Level
-  if(task.level <= 0 || task.level > level) return false;
+ // Level: NUR genau das gewählte Level
+if(task.level !== level) return false;
 
   // "wer": welches Geschlecht darf diese Karte als aktiver Spieler ziehen?
   // erlaubt: männlich / weiblich / nonbinär / alle
