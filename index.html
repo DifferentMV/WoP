@@ -273,6 +273,9 @@ function draw(type){
     const allowed = (t.allowed || "alle").trim();
     if(!(allowed === "alle" || allowed.includes(active.orientation))) return false;
 
+   const wer = (t.wer || "alle").trim();
+if(!(wer === "alle" || wer === activeGender)) return false;
+
     // Zieltyp check: wenn Aufgabe Targets braucht, müssen genug passende Targets da sein
     const zieltyp = ((t.zieltyp || "").trim() || "Selbst");
     const eligibleCount = eligibleTargetsForTask(t, currentIndex).length;
@@ -356,6 +359,16 @@ function renderTaskTimer() {
 // Init
 setPlayerCount();
 loadTasks().catch(()=>{ /* wird bei StartGame nochmal abgefangen */ });
+  return {
+  type: cols[0] || "",
+  text: cols[1] || "",
+  level: Number(cols[2]) || 0,
+  wer: (cols[3] || "alle").trim(),
+  allowed: cols[4] || "alle",
+  target: cols[5] || "alle",
+  timer: Number(cols[6]) || 0,
+  zieltyp: (cols[7] || "").trim()
+};
 </script>
 
 </body>
