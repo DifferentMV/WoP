@@ -5,51 +5,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wahrheit oder Pflicht</title>
 <style>
-body { font-family: Arial, sans-serif; background:#111; color:white; text-align:center; padding:20px;}
-button { padding:12px 20px; margin:10px; font-size:16px; cursor:pointer;}
-select, input { padding:8px; margin:5px;}
-.card { margin-top:20px; padding:20px; background:#222; border-radius:10px;}
-.hidden { display:none; }
+  body { font-family: Arial, sans-serif; background:#111; color:white; text-align:center; padding:20px;}
+  button { padding:12px 20px; margin:10px; font-size:16px; cursor:pointer;}
+  select, input { padding:8px; margin:5px;}
+  .card { margin-top:20px; padding:20px; background:#222; border-radius:10px;}
+  .hidden { display:none; }
 
-#targetsBox{
-  margin-top:10px;
-  font-size:14px;
-  opacity:.92;
-  padding:10px 12px;
-  background:#1a1a1a;
-  border:1px solid #333;
-  border-radius:10px;
-  display:none;
-}
+  #targetsBox{
+    margin-top:10px;
+    font-size:14px;
+    opacity:.92;
+    padding:10px 12px;
+    background:#1a1a1a;
+    border:1px solid #333;
+    border-radius:10px;
+    display:none;
+  }
 </style>
 </head>
 <body>
 
 <h1>Wahrheit oder Pflicht</h1>
 
-  <h3>Spieleranzahl</h3>
-<select id="playerCount" onchange="setPlayerCount()">
-  <option value="2" selected>2</option>
-  <option value="3">3</option>
-  <option value="4">4</option>
-  <option value="5">5</option>
-  <option value="6">6</option>
-  <option value="8">8</option>
-</select>
-<br><br>
 <div id="setup">
+  <h3>Spieleranzahl</h3>
+  <select id="playerCount" onchange="setPlayerCount()">
+    <option value="2" selected>2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="8">8</option>
+  </select>
+  <br><br>
+
   <h2>Spieler hinzufügen</h2>
   <div id="players"></div>
   <button onclick="addPlayer()">+ Spieler</button>
 
   <h3>Level</h3>
- <select id="level">
-  <option value="1">1 - Sanft</option>
-  <option value="2">2 - Mittel</option>
-  <option value="3">3 - Direkt</option>
-  <option value="4">4 - Heavy</option>
-  <option value="5">5 - Pervers & Dirty</option>
-</select>
+  <select id="level">
+    <option value="1">1 - Sanft</option>
+    <option value="2">2 - Mittel</option>
+    <option value="3">3 - Direkt</option>
+    <option value="4">4 - Heavy</option>
+    <option value="5">5 - Pervers & Dirty</option>
+  </select>
   <br><br>
 
   <button onclick="startGame()">Spiel starten</button>
@@ -93,20 +94,25 @@ select, input { padding:8px; margin:5px;}
 let players = [];
 let currentIndex = 0;
 let tasks = [];
+let tasksLoaded = false;
 
-  function setPlayerCount(){
+// ---------------- Spieleranzahl ----------------
+function setPlayerCount(){
   const n = parseInt(document.getElementById("playerCount").value, 10);
   const container = document.getElementById("players");
   container.innerHTML = "";
   for(let i=0;i<n;i++) addPlayer();
 }
+
 // ---------------- CSV Laden ----------------
 async function loadTasks(){
   const response = await fetch('fragen.csv', { cache: "no-store" });
+  if(!response.ok) throw new Error("fragen.csv nicht gefunden oder nicht erreichbar.");
+
   const data = await response.text();
 
-  // Robust gegen Windows-Zeilenenden & leere Zeilen
   const lines = data.split(/\r?\n/).filter(l => l.trim().length > 0);
+  if(lines.length < 2) throw new Error("fragen.csv ist leer oder hat nur Header.");
 
   // Header entfernen
   lines.shift();
@@ -116,13 +122,15 @@ async function loadTasks(){
     return {
       type: cols[0] || "",
       text: cols[1] || "",
-      level: parseInt(cols[2] || "0", 10) || 0,
+      level: Number(cols[2]) || 0,
       allowed: cols[3] || "alle",
       target: cols[4] || "alle",
-      timer: parseInt(cols[5] || "0", 10) || 0,
-      zieltyp: (cols[6] || "").trim() // optional: Selbst/Einzel/Zwei/Gruppe/BeliebigViele
+      timer: Number(cols[5]) || 0,
+      zieltyp: (cols[6] || "").trim() // Selbst/Einzel/Zwei/Gruppe/BeliebigViele (optional)
     };
-  }).filter(t => t.type && t.text);
+  }).filter(t => t.type && t.text && t.level > 0);
+
+  tasksLoaded = true;
 }
 
 // ---------------- Spieler UI ----------------
@@ -147,7 +155,17 @@ function addPlayer(){
   container.appendChild(div);
 }
 
-function startGame(){
+async function startGame(){
+  // Sicherstellen, dass CSV geladen ist
+  if(!tasksLoaded){
+    try{
+      await loadTasks();
+    }catch(e){
+      alert("Fehler beim Laden der fragen.csv: " + (e.message || e));
+      return;
+    }
+  }
+
   const container = document.getElementById("players").children;
   players = [];
 
@@ -161,7 +179,7 @@ function startGame(){
   }
 
   if(players.length < 2){
-    alert("Mindestens 2 Spieler!");
+    alert("Mindestens 2 Spieler (mit Namen)!");
     return;
   }
 
@@ -212,19 +230,12 @@ function showTargets(names){
   box.innerHTML = `<b>Beteiligte:</b> ${formatNames(names)}`;
 }
 
-// Nimmt nur Spieler, die zur Task-Target-Gender-Regel passen (target=alle oder gender)
 function eligibleTargetsForTask(task, activeIndex){
-  const active = players[activeIndex];
   const others = players
     .map((p, idx) => ({...p, idx}))
     .filter(p => p.idx !== activeIndex);
 
-  // gender filter: task.target ist "alle" oder muss gender matchen
-  const byGender = others.filter(o => task.target === "alle" || o.gender === task.target);
-
-  // optional: du könntest hier zusätzlich noch Orientierung/Allowed der TARGETS prüfen,
-  // aktuell prüfst du allowed nur für den aktiven Spieler (wie bisher).
-  return byGender;
+  return others.filter(o => task.target === "alle" || o.gender === task.target);
 }
 
 function pickTargetsForTask(task, activeIndex){
@@ -235,8 +246,8 @@ function pickTargetsForTask(task, activeIndex){
   const pool = shuffle(eligible);
 
   if(zieltyp === "Selbst") return [];
-  if(zieltyp === "Einzel") return pool.slice(0, Math.min(1, pool.length)).map(x => x.name);
-  if(zieltyp === "Zwei")   return pool.slice(0, Math.min(2, pool.length)).map(x => x.name);
+  if(zieltyp === "Einzel") return pool.slice(0, 1).map(x => x.name);
+  if(zieltyp === "Zwei")   return pool.slice(0, 2).map(x => x.name);
   if(zieltyp === "Gruppe") return pool.map(x => x.name);
 
   if(zieltyp === "BeliebigViele"){
@@ -246,55 +257,26 @@ function pickTargetsForTask(task, activeIndex){
     return pool.slice(0, count).map(x => x.name);
   }
 
-  // Fallback
   return [];
 }
 
 // ---------------- Draw / Filter ----------------
-function taskMatchesBasics(task, type, level, active, activeIndex){
-  if(task.type !== type) return false;
-  if(task.level > level) return false;
-
-  // allowed = "alle" oder enthält Orientierung des aktiven
-  if(!(task.allowed === "alle" || task.allowed.includes(active.orientation))) return false;
-
-  // target muss überhaupt irgendwen treffen können (sonst sinnlos)
-  const eligible = eligibleTargetsForTask(task, activeIndex);
-  if(eligible.length === 0 && ((task.zieltyp || "").trim() !== "" && (task.zieltyp || "").trim() !== "Selbst")){
-    return false; // braucht Targets, aber keine vorhanden
-  }
-  return true;
-}
-
 function draw(type){
- const level = Number(document.getElementById("level").value) || 1;
+  const level = Number(document.getElementById("level").value) || 1;
   const active = players[currentIndex];
 
-const validTasks = tasks.filter(t =>
-  t.type === type &&
-  t.level > 0 &&
-  t.level <= level &&
-  (t.allowed === "alle" || (t.allowed || "").includes(active.orientation)) &&
-  (
-    // target-Prüfung: entweder "alle" oder es gibt mindestens 1 passenden anderen
-    t.target === "alle" ||
-    others.some(o => o.gender === t.target)
-  )
-);
+  const validTasks = tasks.filter(t => {
+    if(t.type !== type) return false;
+    if(t.level <= 0 || t.level > level) return false;
 
-  if(validTasks.length === 0){
-    alert("Keine passende Aufgabe gefunden");
-    return;
-  }
+    // allowed prüft Orientierung des aktiven Spielers
+    const allowed = (t.allowed || "alle").trim();
+    if(!(allowed === "alle" || allowed.includes(active.orientation))) return false;
 
-  // Wir versuchen ein paar Mal, eine Aufgabe zu finden, bei der Targets auch wirklich möglich sind.
-  // (z.B. zieltyp=Zwei aber es gibt nur 1 passenden Target)
-  let chosen = null;
-  for(let tries=0; tries<30; tries++){
-    const t = validTasks[Math.floor(Math.random()*validTasks.length)];
-    const zieltyp = ((t.zieltyp||"").trim() || "Selbst");
-
+    // Zieltyp check: wenn Aufgabe Targets braucht, müssen genug passende Targets da sein
+    const zieltyp = ((t.zieltyp || "").trim() || "Selbst");
     const eligibleCount = eligibleTargetsForTask(t, currentIndex).length;
+
     const need =
       zieltyp === "Zwei" ? 2 :
       zieltyp === "Einzel" ? 1 :
@@ -302,25 +284,24 @@ const validTasks = tasks.filter(t =>
       zieltyp === "BeliebigViele" ? 2 :
       0;
 
-    if(eligibleCount >= need){
-      chosen = t;
-      break;
-    }
-  }
+    if(need > 0 && eligibleCount < need) return false;
 
-  if(!chosen){
-    alert("Keine passende Aufgabe gefunden (Targets passen nicht zur Spieler-Konstellation).");
+    return true;
+  });
+
+  if(validTasks.length === 0){
+    alert("Keine passende Aufgabe gefunden.");
     return;
   }
+
+  const chosen = validTasks[Math.floor(Math.random()*validTasks.length)];
 
   document.getElementById("taskText").innerText = chosen.text;
   document.getElementById("result").classList.remove("hidden");
 
-  // Targets anzeigen (B)
   const targetNames = pickTargetsForTask(chosen, currentIndex);
   showTargets(targetNames);
 
-  // Timer reset
   stopTaskTimer();
   document.getElementById("timer").innerText = "";
   document.getElementById("timerInputMinutes").value = "0";
@@ -373,13 +354,8 @@ function renderTaskTimer() {
 }
 
 // Init
-loadTasks();
-level: Number(cols[2]) || 0,
-  t.level > 0 && t.level <= level
-  setPlayerCount(); 
-  
-addPlayer();
-addPlayer();
+setPlayerCount();
+loadTasks().catch(()=>{ /* wird bei StartGame nochmal abgefangen */ });
 </script>
 
 </body>
