@@ -1,11 +1,284 @@
 type;text;level;wer;allowed;target;timer;zieltyp
-Wahrheit;Was war dein schönster Kuss-Moment?;1;alle;alle;alle;0;Selbst
-Wahrheit;Hattest du schon mal einen Crush auf eine Person deines eigenen Geschlechts?;2;alle;homo,bi,pan;alle;0;Selbst
-Wahrheit;Was findest du an deinem Gegenüber heute besonders attraktiv?;3;alle;alle;alle;0;Selbst
-Pflicht;Gib der ausgewählten Person ein aufrichtiges Kompliment.;1;alle;alle;alle;0;Einzel
-Pflicht;Gib der ausgewählten Person einen Kuss auf die Wange.;2;alle;alle;alle;0;Einzel
-Pflicht;Gib der ausgewählten Person eine 60‑Sekunden-Schultermassage.;3;alle;alle;alle;60;Einzel
-Pflicht;Stellt euch zu dritt im Kreis auf und macht 30 Sekunden lang 'Blickkontakt-Challenge'.;4;alle;alle;alle;0;Zwei
-Pflicht;Alle passenden Mitspieler machen gemeinsam 20 Sekunden 'Catwalk' durch den Raum.;4;alle;alle;alle;0;Gruppe
-Pflicht;Wähle (zufällig) mehrere passende Mitspieler und macht zusammen eine lustige Pose für 10 Sekunden.;5;alle;alle;alle;0;BeliebigViele
-Pflicht;Nur für männlich: Lass dir von der ausgewählten Person den Kragen richten (10 Sekunden, langsam).;3;männlich;alle;alle;0;Einzel
+Wahrheit;Wie hoch ist dein Bodycount (Anzahl deiner Sexpartner). Schlüssel ggf. nach Geschlecht auf;1;alle;offen;alle;;Selbst
+Wahrheit;hast du schon einmal einen Mann geküsst? Wenn nein, würdest du?;1;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Wann hast du zum ersten Mal gemerkt, dass du dich auch zu Männern hingezogen fühlst?;1;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Wie alt warst du bei deinem ersten sexuellen Erlebnis mit einem Mann?;1;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Welchen männlichen Promi oder fiktiven Charakter findest du gerade am heißesten?;1;männlich ;alle;alle;;Selbst
+Wahrheit;Hast du schon mal einen richtig geilen Sex-Traum mit einem Mann gehabt? Erzähl mal;1;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist dein Lieblingskörperteil an einem Mann?;1;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Lights on oder lights off beim Sex?;1;männlich ;alle;alle;;Selbst
+Wahrheit;Morgen-Sex oder Abend-Sex – und warum?;1;männlich ;alle;alle;;Selbst
+Wahrheit;Wie oft masturbierst du so in der Woche?;1;männlich ;alle;alle;;Selbst
+Wahrheit;Welche Porno-Kategorie schaust du am liebsten (wenn du welche schaust)?;1;männlich ;alle;alle;;Selbst
+Wahrheit;Was war der ungewöhnlichste Ort, an dem du schon mal Sex hattest?;1;männlich ;alle;alle;;Selbst
+Wahrheit;Was ist das Heißeste, was dir ein Mann je im Bett gesagt hat?;1;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was magst du lieber: hart & schnell oder langsam & sinnlich?;1;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Welches nicht-sexuelle Ding an einem Mann turnt dich total an? (z. B. Hände, Stimme, Lachen…);1;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal einen Sexting an die falsche Person geschickt? Was stand drin?;1;männlich ;alle;alle;;Selbst
+Wahrheit;Was möchtest du sexuell unbedingt mal ausprobieren, hast dich aber noch nicht getraut?;1;männlich ;alle;alle;;Selbst
+Wahrheit;Wie flirtest du, wenn du einen Mann wirklich heiß findest?;1;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist dein Lieblings-Kosewort oder wie möchtest du im Bett genannt werden?;1;männlich ;alle;alle;;Selbst
+Wahrheit;Was war das Lustigste oder Peinlichste, das dir beim Sex je passiert ist?;1;männlich ;alle;alle;;Selbst
+Wahrheit;Was ist dein absoluter Lieblings-Sex-Position mit einem Mann?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal einen Mann oral befriedigt und dabei richtig genossen? Wie war’s?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was turnt dich am meisten an: Wenn ein Typ dominant ist, submissiv oder switch?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Erzähl von deinem heißesten Blowjob – gab oder empfangen?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal Cum geschluckt? Wie findest du den Geschmack?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist die längste Zeit, die du ohne Wichsen ausgehalten hast – und warum?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Welche Porno-Szene oder -Kategorie macht dich am schnellsten hart?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal mit einem Typen rumgemacht, der eigentlich hetero war?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hattest du schon einmal mit einem Freund Sex?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist dein größter Turn-on an einem Manns Körper (außer dem Offensichtlichen)?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal Sex in einem Auto, Park oder öffentlichem Ort gehabt? Details?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist das Geilste, was dir ein Mann je ins Ohr geflüstert hat?;2;weiblich;hetero;alle;;Selbst
+Wahrheit;Hast du schon mal einen anderen Typen beim Wichsen zugeschaut?;2;alle;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist deine größte sexuelle Fantasie, die du noch nicht ausgelebt hast?;2;alle;alle;alle;;Selbst
+Wahrheit;"Hast du schon einmal ""Wichs den Keks"" gespielt? Würdest du?";2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Top, Bottom oder versatile – und wie sehr stehst du drauf?;2;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal einen Mann anal penetriert oder bist penetriert worden? Wie hat sich das angefühlt?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist dein heißester Cumshot-Erlebnis gewesen – wo, wie viel, hast du geschluckt oder nicht?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal rimming (Arschlecken) gemacht oder bekommen? Magst du’s?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Welche Sex-Spielzeuge besitzt du wirklich (Plug, Dildo, Cockring, Fleshlight…)? Hast du sie schon mit einem Mann benutzt?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Erzähl von deinem wildesten Gruppensex- oder Dreier-Erlebnis mit Männern (oder Fantasie davon).;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal bareback (ohne Kondom) Sex mit einem Mann gehabt? Wie riskant war’s?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Würdest du einen Mann bare ficken oder dich bare ficken lassen?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist der größte Schwanz, den du je im Mund oder Arsch hattest? Details?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal einen Mann zum Orgasmus gebracht, nur durch Hand oder Mund, ohne dass er dich berührt?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Welche Kinky-Elemente turnen dich am meisten an: Spanking, Bondage, Dirty Talk, Edging…?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal Piss-Play (golden shower) gemacht oder fantasiert?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was war dein geilster Public-Sex-Moment mit einem Typen?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Warst du schon einmal in einem Darkroom?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal einen Mann gefesselt oder dich fesseln lassen beim Sex?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Wie oft kommst du beim Sex normalerweise – und wie oft squirtest du Pre-Cum?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Wenn du kommst, eher viel oder eher wenig Sperma?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Wenn du kommst, eher rauslaufen oder weit spritzen?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal einen anderen bi/gay Typen beim Sex zugeschaut oder mitgemacht?;3;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal deine eigene Scheiße probiert oder geschluckt? Wie war der Geschmack/Geruch?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal Scat-Play gemacht (Scheiße schmieren, essen, etc.)? Mit wem und wie extrem?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal Piss getrunken (eigenen oder von einem anderen Mann)? Wie viel und wie oft?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist dein extremster Watersports-Moment gewesen (z. B. golden shower im Mund, im Arsch, in der Dusche)?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal Blood-Play gemacht (Schneiden, Beißen bis Blut, Menstruationsblut lecken)?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal Needle-Play oder Piercing-Play ausprobiert (Nadeln in Haut, Genitalien)?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist der schmerzhafteste Act, den du je beim Sex hattest und trotzdem genossen?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal extreme Humiliation erlebt oder gemacht (z. B. verbal abwerten, public exposure, pet play mit Demütigung)?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal jemanden (oder dich) mit Kot oder Piss markiert und dann Sex gehabt?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;hast du schon einmal über Sex mit Tieren fantasiert? Wenn ja, welche?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist deine dunkelste, schmutzigste Fantasie, die du noch nie jemandem erzählt hast?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du schon mal CBT (Cock & Ball Torture) bis zum Weinen/Bluten gemacht?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Was ist das Ekligste, was du je im Mund hattest (außer normalem Cum)?;4;alle;alle;alle;;Selbst
+Wahrheit;Hast du schon mal Electro-Play oder Sounding bis zur Grenze gemacht?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Magst du Windelspiele? Wenn ja, tragen oder nutzen?;4;männlich ;homo,bi,pan;männlich;;Selbst
+Wahrheit;Hast du dich schon einmal auspeitschen lassen?;4;alle;alle;alle;;Selbst
+Wahrheit;Würdest du dich nackt vorführen lassen?;4;alle ;alle;alle;;Selbst
+Pflicht;Zieh dein Shirt aus und lass mich 30 Sekunden lang deinen Oberkörper mit den Händen erkunden (nur streicheln, kein Kneifen oder Schlagen).;1;alle;alle;alle;;Einzel
+Pflicht;Setz dich rittlings auf meinen Schoß (Klamotten bleiben an) und bewege dich langsam 30 Sekunden lang – spür die Härte durch die Hose.;1;männlich ;homo,bi,pan;männlich;;Selbst
+Pflicht;Lecke oder küsse meinen Hals und arbeite dich langsam bis zum Ohrläppchen hoch – 30 Sekunden.;1;alle;alle;alle;;Einzel
+Pflicht;Massiere mir 30 Sekunden lang die Schultern und den oberen Rücken – fest, aber sinnlich;1;alle;alle;alle;;Einzel
+Pflicht;Lass mich deine Brustwarzen mit den Fingern sanft umkreisen und leicht zwirbeln – 30 Sekunden lang.;1;alle;alle;alle;;Einzel
+Pflicht;Errege den anderen Mitspieler mit deinen Füßen an seinem Schwanz;1;alle;alle;männlich;;einzel
+Pflicht;Leg deine Hand auf meinen Schritt (über der Hose) und halte sie 15 Sekunden einfach nur da – ohne zu bewegen.;1;alle;alle;alle;;einzel
+Pflicht;Setz dich hinter mich, umarme mich von hinten und lass deine Hände über meine Brust wandern – 30 Sekunden.;1;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Lass mich deinen Arsch über der Hose fest packen und 30 Sekunden halten – du darfst dabei leicht stöhnen.;1;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Zieh deine Hose ein Stück runter (nur bis Oberschenkel), sodass die Unterhose sichtbar ist, und lass mich die Innenseiten deiner Oberschenkel streicheln – 30 Sekunden.;1;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Leg dich auf den Rücken, ich darf 30 Sekunden lang mit den Fingerspitzen über deinen ganzen Oberkörper fahren (Brust, Bauch, Seiten, Nippel).;1;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Zieh ein Kleidungsstück aus (welches du willst) und lass mich die freigelegte Haut 30 Sekunden lang streicheln.;2;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Lass mich dir ein Kleidungsstück ausziehen;2;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;ieh ein weiteres Kleidungsstück aus und setz dich auf meinen Schoß – grind 30 Sekunden (Stoff an Stoff oder schon Haut an Haut).;2;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Beide ohne Oberteil: Haut-an-Haut-Umarmung 45 Sekunden, Hände wandern frei über Rücken, Seiten, bis zum Bund der Unterhose.;2;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Lass mich deine Nippel mit Fingern und Zunge verwöhnen – 30 Sekunden pro Seite.;2;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;massiere meine Eier sanft für 1 Min;2;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Massiere meinen Arsch für 1 Min;2;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Wichse langsam meinen Schwanz - 1 Min;2;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;küsse 30 Sekunden meinen Nacken;2;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Spiele mit nackten Füßen an meinem Schwanz 1 Min;2;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Ziehe aus, was du noch an hast, ansonsten wichse vor allen 30 Sekunden ohne zu kommen.;2;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Gib mir einen langsamen, tiefen Zungenkuss, während du meinen harten Schwanz mit der Hand umfasst und leicht streichelst – 30 Sekunden.;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Gib mir einen 30 sekündigen Zungenkuss;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Lass mich deinen Schwanz mit der flachen Hand umschließen und langsam auf und ab gleiten – 30 Sekunden, kein Kommen;3;alle;alle;männlich;;einzel
+Pflicht;Lecke meine Eier und den Schaft hoch bis zur Eichel – nur Lecken, kein Mund drumherum – 30 Sekunden.;3;alle;alle;männlich;;einzel
+Pflicht;Lecke meine Eier und den Schaft hoch bis zur Eichel – nur Lecken, kein Mund drumherum – 30 Sekunden.;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Nimm meinen Schwanz in den Mund und sauge langsam die Eichel – 30 Sekunden, dann raus und Tease mit der Zunge.;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Wir frottieren unsere Schwänze aneinander (Schwertkampf-Style) – wichse beide Gleichzeitig, 1 Min;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Lass mich deinen Arsch backen spreizen und rimmen (Arschloch lecken) – 30 Sekunden;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Blase meine Eier und sauge sie leicht ein – 30 Sekunden,;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Frottage intensiv: Setz dich auf mich, Schwänze aneinander pressen und wichse beide – 1 Minute;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Wir beide wichsen uns gegenseitig – synchron, Augen kontakt 1 Min;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Reibe deinen Schwanz zwischen meinen Arschbacken - 1 Min;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Rolle ein Kondom mit dem Mund über meinen Schwanz;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;ich mache 1 Min Facesitting auf dir;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;lecke mein Arschloch 30 Sekunden;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;gehe vor mir auf die Knie, nimm mein Schwanz so tief in den Mund wie du kannst, schaue mich dabei an und halte dich an der Grenze, so lange du kannst;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Finger-Play-Einstieg: Lass mich deinen Arsch mit einem gut eingecremten Finger langsam penetrieren – 1 Minute, während du meinen Schwanz wichst.;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Reverse: Penetriere mich mit deinem Finger – 1 Minute tief & kreisend, ich blase dich dabei langsam.;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Stellung 69 seitwärts. blast euch gegenseitig für 1 Minute;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Lege dich auf den Rücken, ich dringe in Reiterstellung in dich ein und wir verharren 1 Min in dieser Position;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Ficke mich 1 Minute von hinten. ;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Dringe 3x in mich anal ein. Den Schwanz jedes mal ganz raus ziehen;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;stellt euch gegenüber und wichst euch gegenseitig 1 Min;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Stellung 69 , ich liege unten, du über mir - 1 Min;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Entscheide: entweder ficke oder blase dich 1 Min.;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Du sitzt, ich setze mich, Bauch an Bauch auf deinen Schwanz. Ich reite dich langsam 1 Minute;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Ich gehe vor dir auf die Knie, du hältst meinen Kopf fest und fickst 1 Min meinen Rachen so sehr du kannst. ;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Joker! Du darfst dir aussuchen, was du 3 Minuten machen möchstest. ;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Stellt euch gegenüber, küsst euch mit Zunge und wichst euch gegenseitig 30 Sekunden. ;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Ass2Mouth - dring in meinen Arsch und meinen Mund 2x abwechselnd ein;5;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Lass uns ins Bad gehen und dir beim Pinkeln den Schwanz halten;5;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Geh pissen und lasse mich den Schwanz trocken lecken;5;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Fülle dein Glas mit mindestens 50ml deines Urins und trinke es. Du darfst es mit anderen Getränken mischen;5;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Nimm ein benutzes Kondom und nutze es 5 Min als Kaugummi;5;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;lasse dir eine (Bier-) Flasche anal einführen und etwas von dem Inhalt in deinen Arsch gießen;5;männlich ;homo,bi,pan;männlich;;einzel
+Wahrheit;stehst du auf dominante Frauen?;1;männlich ;alle;männlich;;Selbst
+Wahrheit;Wann hast du das erste mal Sex gehabt?;1;alle;alle;alle;;Selbst
+Wahrheit;wie oft masturbierst du in einer Woche?;1;alle;alle;alle;;Selbst
+Wahrheit;hast du schon einmal an gleichgeschlechtlichen Sex gedacht?;1;alle;alle;alle;;Selbst
+Wahrheit;Wie findest du es, wenn sich Männer die Nägel lackieren?;1;alle;alle;alle;;Selbst
+Wahrheit;Was für Unterwäsche trägst du am liebsten (String, Panty, Shorts etc.)?;1;alle;alle;alle;;Selbst
+Wahrheit;Wie denkst du über Polyamorie? Wäre das ein Beziehungskonzept für dich?;1;alle;alle;alle;;Selbst
+Wahrheit;Was denkst du über offene Beziehungen?;1;alle;alle;alle;;Selbst
+Wahrheit;Was denkst du über Cuckold Beziehungen?;1;alle;alle;alle;;Selbst
+Wahrheit;Was hälst du von FLR Beziehungen?;1;alle;alle;alle;;Selbst
+Wahrheit;Was hältst du von F+?;1;alle;alle;alle;;Selbst
+Wahrheit;Findest du, Sex unter Freunden sollte ok sein?;1;alle;alle;alle;;Selbst
+Wahrheit;Hast du schon einmal für Sex Geld bekommen?;1;alle;alle;alle;;Selbst
+Wahrheit;Warst du schon einmal bei eine/r Sexworker/in?;1;alle;alle;alle;;Selbst
+Wahrheit;Warst du schon einmal in einem Swingerclub?;1;alle;alle;alle;;Selbst
+Wahrheit;Sollten Männer Röcke/Kleider tragen dürfen?;1;alle;alle;alle;;Selbst
+Wahrheit;Wie denkst du darüber, wenn dein Partner gerne Röcke/Kleider trägt?;1;weiblich;alle;weiblich;;Selbst
+Wahrheit;könntest du mit einem nonbinären Menschen zusammen sein?;1;alle;alle;alle;;Selbst
+Wahrheit;Schluckst du oder spuckst du?;2;weiblich;hetero;alle;;Selbst
+Wahrheit;Schluckst du oder spuckst du?;2;männlich ;homo,bi,pan;alle;;Selbst
+Wahrheit;Schluckst du oder spuckst du?;2;alle;alle;alle;;selbst
+Wahrheit;Hattest du schon einmal einen MMF?;2;alle;alle;alle;;Selbst
+Wahrheit;Hattest du schon einmal einen FFM?;2;alle;alle;alle;;Selbst
+Wahrheit;Wie denkst du über BDSM?;2;alle;alle;alle;;Selbst
+Wahrheit;Wie denkst du über Natursekt Spiele? Hast du Erfahrungen?;2;alle;alle;alle;;Selbst
+Wahrheit;hast du schon einmal mit einem Kumpel zusammen gewichst?;2;männlich ;alle;männlich;;Selbst
+Wahrheit;Hast du schon mal Sperma geschluckt (deins oder von einem anderen)? Wie fandest du den Geschmack / das Gefühl?;2;alle;hetero;weiblich;;Selbst
+Wahrheit;Hast du schon mal Sperma geschluckt (deins oder von einem anderen)? Wie fandest du den Geschmack / das Gefühl?;2;männlich ;homo,bi,pan;männlich;;selbst
+Wahrheit;Top, Bottom, Switch – und wie stark zieht es dich in welche Richtung?;2;alle;alle;alle;;Selbst
+Wahrheit;Gefällt dir der Gedanke, dass eine Frau entscheidet, wann und wie oft du kommen darfst?;2;männlich ;alle;männlich;;Selbst
+Wahrheit;Was turnt dich mehr an: Wenn eine Frau dir den Orgasmus verweigert oder wenn sie dich zwingt, mehrmals hintereinander zu kommen?;2;männlich ;alle;männlich;;Selbst
+Wahrheit;Hast du schon mal Füße geleckt oder massiert – und hat dich das erregt?;2;alle;alle;alle;;Selbst
+Wahrheit;Hast du schon einmal getragene Unterwäsche verkauft? Wenn ja, für wieviel?;2;weiblich;alle;weiblich;;Selbst
+Wahrheit;Hast du schon einmal getragene Unterwäsche gekauft? Wenn ja, für wieviel?;2;männlich ;alle;männlich;;Selbst
+Wahrheit;Wievielen Partnern bist du schon fremdgegangen?;2;alle;alle;alle;;Selbst
+Wahrheit;Hast du deinem Partner, während er Auto fährt, schon einmal einen runtergeholt?;2;weiblich;alle;weiblich;;Selbst
+Wahrheit;Würdest du guten, männlichen Freunden einen Handjob geben?;2;weiblich;hetero;weiblich;;Selbst
+Wahrheit;Was hältst du von Männern, die schnell kommen?;2;alle;alle;alle;;Selbst
+Wahrheit;Hast du schon einmal 2 Schwänze gleichzeitig gewichst? Würdest du?;2;weiblich;hetero;weiblich;;Selbst
+Wahrheit;Mann mit Bauchnabelpiercing, go oder no go? ;1;alle;alle;alle;;Selbst
+Wahrheit;Wie findest du Intimschmuck bei anderen;1;alle;alle;alle;;Selbst
+Wahrheit;Trägst du Intimschmuck? Wenn ja, was? Wenn nein, würdest du und was?;2;alle;alle;alle;;Selbst
+Wahrheit;Männer mit rasierten Beinen, go oder no go?;1;alle;alle;alle;;Selbst
+Wahrheit;Würdest du dir die Beine rasieren bzw. hast du das schon?;1;männlich ;alle;männlich;;Selbst
+Wahrheit;FKK oder Textil am Badestrand?;1;alle;alle;alle;;Selbst
+Wahrheit;Du siehst 2 Männer, die sich innig küssen. Erregt dich das eher oder stößt es dich ab?;1;alle;alle;alle;;Selbst
+Wahrheit;Ein Mann mit Erektion am FKK. Was denkst du?;1;alle;alle;alle;;Selbst
+Wahrheit;Bist du schon einmal ohne Unterwäsche außer Haus gewesen?;1;alle;alle;alle;;Selbst
+Wahrheit;Du siehst 2 Frauen, die sich innig küssen. Erregt dich das eher oder stößt es dich ab?;1;alle;alle;alle;;Selbst
+Wahrheit;Hast du eine/n Freund/in, mit der du gerne meinmal Sex hättest. Wer ist es?;1;alle;alle;alle;;Selbst
+Wahrheit;Hast du einen Fetisch?;2;alle;alle;alle;;Selbst
+Wahrheit;Ein Mann trägt Schuhe mit hohen Absätzen. Wie findest du das?;1;alle;alle;alle;;Selbst
+Wahrheit;Kennst du den Begriff Sapiosexuell? Was ist das?;1;alle;alle;alle;;Selbst
+Wahrheit;Mit wieviel Männern hattest du schon Sex?;2;alle;alle;alle;;Selbst
+Wahrheit;Mit wieviel Männern hattest du schon Sex?;2;alle;alle;alle;;selbst
+Wahrheit;Mit wieviel Frauen hattest du schon Sex?;2;alle;alle;alle;;Selbst
+Wahrheit;Mit wieviel Frauen hattest du schon Sex?;2;alle;alle;alle;;selbst
+Wahrheit;Hattest du schon einmal Sperma im Gesicht?;3;alle;alle;alle;;Selbst
+Wahrheit;Hattest du schon einmal Sperma im Gesicht?;3;alle;alle;alle;;selbst
+Wahrheit;Hast du schon einmal dein Sperma selbst probiert?;3;männlich ;alle;männlich;;Selbst
+Wahrheit;Hast du dir schon einmal Gemüse vaginal eingeführt?;3;weiblich;alle;weiblich;;Selbst
+Wahrheit;Hast du schon einmal Poppers probiert? Würdest du?;3;alle;alle;alle;;Selbst
+Wahrheit;Hast du dich schon einmal vaginal fisten lassen? Würdest du bzw wie war es?;3;weiblich;alle;weiblich;;Selbst
+Wahrheit;Hast du dich schon einmal anal fisten lassen? Würdest du bzw wie war es?;3;alle;alle;alle;;Selbst
+Wahrheit;Hattest du schon einmal Sandwich Sex (2 Männer in dir). Würdest du bzw. wie war es?;3;alle;alle;alle;;Selbst
+Wahrheit;Hast du schon einmal ein Bukakke erlebt? Würdest du bzw. wie war es?;3;alle;alle;alle;;Selbst
+Wahrheit;Hast du schon einmal Gruppensex gehabt?;3;alle;alle;alle;;Selbst
+Wahrheit;Hattest du schon einmal einen MMM?;2;männlich ;homo,bi,pan;männlich;;selbst
+Wahrheit;Hattest du schon mal FFF?;2;weiblich;homo,bi,pan;weiblich;;selbst
+Wahrheit;Dein Partner sagt dir, er hätte gerne Sex mit deiner/m Freund/in und diese/r möchte auch. Was würdest du sagen?;2;alle;alle;alle;;Selbst
+Wahrheit;Was ist dein Lieblingssextoy?;3;alle;alle;alle;;Selbst
+Wahrheit;Hast du schon einmal eine Gummipuppe benutzt?;3;männlich ;alle;männlich;;Selbst
+Wahrheit;Magst du Rimming?;3;alle;alle;alle;;Selbst
+Wahrheit;Du kommst nach Hause und ertappst deinen Mann mit einem anderen Mann im Bett. Was machst du?;3;weiblich;hetero;weiblich;;Selbst
+Wahrheit;ist für dich ein Blowjob schon fremdgehen?;3;alle;alle;alle;;Selbst
+Wahrheit;Wie wäre es für dich, wenn dein Partner neben dir masturbieren würde.;2;alle;alle;alle;;Selbst
+Wahrheit;dein Mann holt sich jeden Abend im Bett einen runter. Verletzend oder mögliche Abendroutine?;3;weiblich;hetero;weiblich;;Selbst
+Wahrheit;deine Parterin möchte die Beziehung öffnen und dich zum Cuckold machen. Was denkst du darüber?;2;männlich ;alle;männlich;;Selbst
+Wahrheit;Du hast analverkehr und dein Schwanz ist beim rausziehen verschmiert. Was machst du?;4;männlich ;alle;männlich;;Selbst
+Wahrheit;Hast du schon einmal mit KV gespielt? Was hast du gemacht bzw. würdest du?;4;alle;alle;alle;;Selbst
+Wahrheit;Dein/e Partner/in gesteht dir einen KV Fetisch. Was denkst du darüber?;4;alle;alle;alle;;Selbst
+Wahrheit;Hast du als Erwachsener schon einmal Windeln getragen? ;4;alle;alle;alle;;Selbst
+Wahrheit;Wie denkst du über Menstruationsspiele?;4;männlich ;hetero;männlich;;Selbst
+Wahrheit;Würdest du ein Gericht essen, auf dem dein Sperma ist?;4;männlich ;alle;männlich;;Selbst
+Wahrheit;hast du schon einmal mit Liebeskugeln das Haus verlassen?;3;weiblich;alle;weiblich;;Selbst
+Wahrheit;Dein Partner möchte sich dir komplett unterwerfen. Was denkst du darüber?;2;alle;alle;alle;;Selbst
+Wahrheit;Dein Mann gesteht dir, Cuckold sein zu wollen. Was denkst du? ;2;weiblich;hetero;weiblich;;Selbst
+Wahrheit;Was ist dir lieber? Eine Frau mit wenigen Sexpartnern vor dir oder mit vielen?;2;männlich ;alle;männlich;;Selbst
+Wahrheit;Würdest du dich selbst als sexpositiv bezeichnen?;1;alle;alle;alle;;Selbst
+Wahrheit;Hast du schon einmal an einem Bukakke teilgenommen? Wie war es oder würdest du?;4;alle;alle;alle;;Selbst
+Wahrheit;Hast du schon einmal an einem GangBang teilgenommen? Wie war es oder würdest du?;4;alle;alle;alle;;Selbst
+Wahrheit;Ass2Mouth? Würdest du?;4;alle;alle;alle;;Selbst
+Wahrheit;Welche Art Sex machst du mit einer Partnerin am liebsten?;2;weiblich;homo,bi,pan;weiblich;;selbst
+Wahrheit;Welche Sex Stellung ist dir mit deinem Partner die liebste?;2;männlich ;homo,bi,pan;männlich;;selbst
+Wahrheit;Warst du schon einmal in einem Darkroom? Wie war es oder würdest du?;2;männlich ;homo,bi,pan;männlich;;selbst
+Wahrheit;Wäre eine Swingerbeziehung etwas für dich?;2;alle;alle;alle;;Selbst
+Wahrheit;Zuschauer beim Sex, wie findest du das?;2;alle;alle;alle;;Selbst
+Wahrheit;Kannst du mit Ständer pissen?;4;männlich ;alle;männlich;;Selbst
+Wahrheit;Hast du schon einmal deinen eigenen Urin probiert?;4;alle;alle;alle;;Selbst
+Wahrheit;Erregt dich der Gedanke, angepisst zu werden?;4;alle;alle;alle;;Selbst
+Wahrheit;Erregt dich der Gedanke, KV anderer essen zu müssen?;5;alle;alle;alle;;Selbst
+Wahrheit;CMNF - wäre das etwas für dich?;3;männlich ;alle;männlich;;Selbst
+Wahrheit;Würdest du für einen Partner anschaffen gehen?;4;alle;alle;alle;;Selbst
+Wahrheit;Dein/e Partner/in möchte dich für Sex vermieten, was macht der Gedanke mit dir?;3;alle;alle;alle;;Selbst
+Wahrheit;Erregt dich der Gedanke an Forced Bi?;3;männlich ;alle;männlich;;Selbst
+Wahrheit;Sodomie/K9 - wie denkst du darüber?;4;alle;alle;alle;;Selbst
+Wahrheit;Trägste du gerne Anal Plugs?;2;alle;alle;alle;;Selbst
+Wahrheit;Wie denkst du über Dilator Spiele?;2;alle;alle;alle;;Selbst
+Wahrheit;Gibst du gerne Prostata Massagen?;3;weiblich;alle;weiblich;;Selbst
+Wahrheit;Dein Partner dringt in dich ein, während du schläfst. Vergewaltigung oder Wunsch?;3;weiblich;hetero;weiblich;;Selbst
+Wahrheit;Hast du dir schon einmal vorgestellt, vergewaligt zu werden?;4;männlich ;homo,bi,pan;männlich;;selbst
+Wahrheit;Hast du schon einmal mit anderen Männern direkt Schwanzgrößen verglichen?;3;männlich ;alle;männlich;;Selbst
+Wahrheit;Bist du zufrieden, mit deinem Schwanz?;3;männlich ;alle;männlich;;Selbst
+Wahrheit;Fickst du lieber oder wirst du lieber gefickt?;4;männlich ;homo,bi,pan;männlich;;selbst
+Wahrheit;Wie findest du Pegging? Was gefällt dir bzw. würdest du das?;3;weiblich;alle;weiblich;;Selbst
+Wahrheit;Wie wichtig ist dir die Schwanzgröße?;3;weiblich;hetero;weiblich;;Selbst
+Wahrheit;Hast du schon einmal versucht, dir selbst in den Mund zu wichsen?;2;männlich ;alle;männlich;;Selbst
+Wahrheit;würdest du deinem Partner in einer Umkleidekabine einen Blow- bzw Handjob geben?;3;weiblich;hetero;weiblich;;Selbst
+Wahrheit;Darf dein Partner sich jederzeit einen Blow-, Handjob wünschen?;3;weiblich;hetero;weiblich;;Selbst
+Wahrheit;Darf dein Partner sich jederzeit einen Blow-, Handjob wünschen?;3;weiblich;hetero;männlich;;selbst
+Wahrheit;Macht dich Sperma an?;2;alle;alle;alle;;Selbst
+Wahrheit;Wie findest du es, wenn sich Partner überwachen (Tracking, Kamera etc.);2;alle;alle;alle;;Selbst
+Wahrheit;Welchen Bekleidungsstoff machst du am liebsten?;1;alle;alle;alle;;Selbst
+Wahrheit;Würdest du an einer privaten FKK Party teilnehmen?;2;alle;alle;alle;;Selbst
+Wahrheit;Du wirst zu einer Party eingeladen und sollst dort als einziger nackt servieren. Würdest du?;2;alle;alle;alle;;Selbst
+Wahrheit;Was denkst du über Ball Busting?;3;alle;alle;alle;;Selbst
+Wahrheit;Was denkst du über Keuschhaltung?;2;alle;alle;alle;;Selbst
+Wahrheit;Würdest du gerne Keusch gehalten werden?;2;alle;alle;alle;;Selbst
+Wahrheit;Würdest du gerne einen KG tragen? Hast du das schon?;2;alle;alle;alle;;Selbst
+Pflicht;stelle dich hinter einen anderen, männlichen Mitspieler, schmiege dich an ihn, schiebe deinen Schwanz zwischen seine Beine und tue so, als wenn du ihn langsam fickst.;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;lege dich auf den Rücken, ein andere Männlicher Mitspieler geht im Liegestütz Stand über dich und fickt 30 sek deinen Rachen also Mund weit auf lassen ;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;Macht Gegenseitig ein Foto, wo ihr dem jeweils anderen einen blast und taucht es aus;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;blase 30 Sekunden einem anderen Mitspieler einen, ohne deine Hände zu benutzen;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;zeige einem anderen Mitspieler eine Pornoszene, den du gerne nachspielen möchtest und spielt diese nach;4;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;massiere einem anderen männlichen Mitspieler 1 min nur die Eichel;3;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;wenn du das nächste mal auf Toilette musst, nimmst du einen anderen Mitspieler mit;5;männlich ;homo,bi,pan;männlich;;einzel
+Pflicht;wichse deinen und den Schwanz eines anderen Mitspielers 30sek gleichzeitig;3;männlich ;homo,bi,pan;männlich;;Einzel
+Pflicht;massiere einem/r anderen Mitspieler/in 3 Min den Arsch.;3;alle;alle;alle;;einzel
+Pflicht;spiele 1 min mit den Brustwarzen eines anderen Mitspielers;3;alle;alle;alle;;einzel
+Pflicht;teste die Schmerzgrenze der Brustwarzen eines beliebigen Mitspielers;3;alle;alle;alle;;Selbst
+Pflicht;Knie dich vor mich hin, nimm meinen Schwanz in den Mund und sauge langsam nur die Eichel – 30 Sekunden. Schau mir dabei in die Augen.;4;männlich ;alle;alle;;einzel
+Pflicht;Wichse den Schwanz eines Mitspielers – langsam & fest – 1 Minute. Stoppe, wenn er nah dran ist!;3;weiblich;hetero;weiblich;;einzel
+Pflicht;Setze dich auf das Gesicht eines Mitspielers und lasse dich 1 Min lecken. Du bestimmst den Druck;3;weiblich;hetero;weiblich;;einzel
+Pflicht;lecke die Eier und den Schaft hoch bis zur Spitze – nur mit der Zunge eines beliebigen Mitspielers– 30 Sekunden.;3;weiblich;hetero;weiblich;;einzel
+Pflicht;Reibe deine (nasse) Muschi am harten Schwanz (kein Eindringen) des männlichen Mitspielers links neben dir  – 1 Minute.;3;weiblich;hetero;männlich;;einzel
+Pflicht;Edging-Runde: Wichse deinen Mitspieler bis kurz vorm Kommen, dann Pause – mach das 3× hintereinander (max. 3 Minuten);3;weiblich;hetero;männlich;;einzel
+Pflicht;lasse dich 1 Min von einem Mitspieler deiner Wahl fingern;3;weiblich;hetero;alle;;einzel
+Pflicht;fingere dich selbst und lasse deine Finger vom Mitspieler  ablecken;3;weiblich;hetero;alle;;einzel
+Pflicht;lass ich vom Mitspieler fingern, während du ihn wichst - 1 Min;3;weiblich;hetero;männlich;;einzel
+Pflicht;entscheide: entweder leckt dich Mitspieler links oder du bläst Mitspieler rechts einen - 1Min;4;weiblich;hetero;männlich;;zwei
+Pflicht;Spieler links Doggy-Style: Ich auf allen Vieren – fick mich vaginal hart & rhythmisch – 1 Min. Greif meine Hüften fest;4;weiblich;hetero;männlich;;einzel
+Pflicht;mit 2 Fingern anal ficken und dafür parallel gewichst werden - 1 Min;4;männlich ;hetero;weiblich;;einzel
+Pflicht;wichse2 Schwänze gleichzeitig - 1 Min ;4;weiblich;hetero;männlich;;Zwei
+Pflicht;lasse dich von allen Mitspielern verwöhnen;4;weiblich;hetero;alle;;Gruppe
+Pflicht;lasse dich von allen Mitspielern anpissen;5;männlich ;homo,bi,pan;männlich;;BeliebigViele
