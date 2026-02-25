@@ -277,6 +277,30 @@ function nextPlayer(){
 }
 
 // -------- Target / Mehrspieler Logik (strikt) --------
+function orientationCanMatchGender(player, wantedGenderRaw){
+  const wantedGender = norm(wantedGenderRaw || "alle");
+  if(wantedGender === "alle") return true;
+
+  const ownGender = norm(player.gender);
+  const orientation = norm(player.orientation);
+
+  if(orientation === "offen" || orientation === "pan" || orientation === "bi") return true;
+  if(orientation === "hetero") return wantedGender !== ownGender;
+  if(orientation === "homo") return wantedGender === ownGender;
+  return false;
+}
+
+function playersCanBePaired(a, b){
+  const sameGender = norm(a.gender) === norm(b.gender);
+  const aOrientation = norm(a.orientation);
+  const bOrientation = norm(b.orientation);
+
+  // Explizite Sicherheitsregel: gleichgeschlechtliche Paarung niemals mit hetero-Beteiligung.
+  if(sameGender && (aOrientation === "hetero" || bOrientation === "hetero")) return false;
+
+  return orientationCanMatchGender(a, b.gender) && orientationCanMatchGender(b, a.gender);
+}
+
 function eligibleTargetsForTask(task, activeIndex){
   const active = players[activeIndex];
   const others = players
@@ -284,7 +308,16 @@ function eligibleTargetsForTask(task, activeIndex){
     .filter(p => p.idx !== activeIndex);
 
   const targetGender = norm(task.target || "alle"); // "alle" oder "männlich"/"weiblich"/"nonbinär"
-  return others.filter(o => targetGender === "alle" || norm(o.gender) === targetGender);
+  return others.filter(o => {
+    const genderMatches = targetGender === "alle" || norm(o.gender) === targetGender;
+    if(!genderMatches) return false;
+
+    // Bei Aufgaben mit Orientierungs-Whitelist muss auch der/die Zielspieler:in passen.
+    if(!hasToken(task.allowed, o.orientation)) return false;
+
+    // Beide beteiligten Spieler müssen zueinander orientierungs-kompatibel sein.
+    return playersCanBePaired(active, o);
+  });
 }
 
 function requiredTargetsCount(zieltypRaw){
@@ -295,6 +328,10 @@ function requiredTargetsCount(zieltypRaw){
   if(z === "gruppe") return 1;          // mindestens 1 anderer
   if(z === "beliebigviele") return 2;   // mindestens 2 andere
   return 0;
+}
+
+function playerCanMatchTaskTarget(active, targetGenderRaw){
+  return orientationCanMatchGender(active, targetGenderRaw);
 }
 
 function pickTargetsForTask(task, activeIndex){
@@ -331,6 +368,10 @@ function taskIsValid(task, requestedType, selectedLevel, activeIndex){
 
   // allowed: Orientierung des aktiven strikt (alle oder token)
   if(!hasToken(task.allowed, active.orientation)) return false;
+
+  // target muss zur Orientierung des aktiven Spielers passen.
+  // Dadurch erhalten z.B. hetero Männer keine auf Männer ausgerichteten Aufgaben.
+  if(!playerCanMatchTaskTarget(active, task.target)) return false;
 
   // zieltyp/targets: wenn Targets benötigt, müssen genug passende da sein
   const need = requiredTargetsCount(task.zieltyp);
