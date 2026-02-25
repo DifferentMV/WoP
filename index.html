@@ -5,21 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Wahrheit oder Pflicht</title>
 <style>
-  body { font-family: Arial, sans-serif; background:#111; color:white; text-align:center; padding:20px;}
-  button { padding:12px 20px; margin:10px; font-size:16px; cursor:pointer;}
-  select, input { padding:8px; margin:5px;}
-  .card { margin-top:20px; padding:20px; background:#222; border-radius:10px;}
-  .hidden { display:none; }
-  #players > div { margin: 6px 0; }
+  body{font-family:Arial,sans-serif;background:#111;color:#fff;text-align:center;padding:20px}
+  button{padding:12px 20px;margin:10px;font-size:16px;cursor:pointer}
+  select,input{padding:8px;margin:5px}
+  .card{margin-top:20px;padding:20px;background:#222;border-radius:10px}
+  .hidden{display:none}
+
+  #players > div{margin:8px 0}
   #targetsBox{
-    margin-top:10px;
-    font-size:14px;
-    opacity:.92;
-    padding:10px 12px;
-    background:#1a1a1a;
-    border:1px solid #333;
-    border-radius:10px;
-    display:none;
+    margin-top:10px;font-size:14px;opacity:.92;padding:10px 12px;
+    background:#1a1a1a;border:1px solid #333;border-radius:10px;display:none
   }
 </style>
 </head>
@@ -29,7 +24,7 @@
 
 <div id="setup">
   <h3>Spieleranzahl</h3>
-  <select id="playerCount">
+  <select id="playerCount" onchange="setPlayerCount()">
     <option value="2" selected>2</option>
     <option value="3">3</option>
     <option value="4">4</option>
@@ -41,12 +36,7 @@
   <h2>Spieler hinzufügen</h2>
   <div id="players"></div>
 
-  <div style="margin-top:10px;">
-    <button type="button" onclick="addPlayer()">+ Spieler</button>
-    <button type="button" onclick="setPlayerCount()">Auf Anzahl setzen</button>
-  </div>
-
-  <h3>Level (EXAKT)</h3>
+  <h3>Level (exakt)</h3>
   <select id="level">
     <option value="1">1 - Sanft</option>
     <option value="2">2 - Mittel</option>
@@ -54,12 +44,14 @@
     <option value="4">4 - Heavy</option>
     <option value="5">5 - Pervers & Dirty</option>
   </select>
-
   <br><br>
+
   <button onclick="startGame()">Spiel starten</button>
 
-  <div style="opacity:.8;font-size:12px;margin-top:10px;">
-    CSV im selben Ordner: <b>fragen.csv</b> (Semikolon-getrennt)
+  <div style="max-width:720px;margin:18px auto 0;opacity:.85;font-size:13px;line-height:1.35">
+    CSV-Spalten: <b>type;text;level;wer;allowed;target;timer;zieltyp</b><br>
+    allowed/wer/target: <b>alle</b> oder Liste/Wert aus: <b>männlich, weiblich, nonbinär</b> bzw. <b>hetero, homo, bi, pan, offen</b><br>
+    zieltyp: <b>Selbst, Einzel, Zwei, Gruppe, BeliebigViele</b>
   </div>
 </div>
 
@@ -106,242 +98,19 @@ let currentIndex = 0;
 let tasks = [];
 
 /* =========================
-   CSV PARSER (Semikolon, mit Quotes)
-   - unterstützt "Text; mit ; im Text"
+   HELPERS
 ========================= */
-function parseCSVLine(line, sep=";"){
-  const out = [];
-  let cur = "";
-  let inQuotes = false;
+function norm(s){ return (s ?? "").toString().trim(); }
 
-  for(let i=0;i<line.length;i++){
-    const ch = line[i];
+function lower(s){ return norm(s).toLowerCase(); }
 
-    if(ch === '"'){
-      // doppelte quotes "" -> "
-      if(inQuotes && line[i+1] === '"'){
-        cur += '"'; i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
-    }
-
-    if(ch === sep && !inQuotes){
-      out.push(cur);
-      cur = "";
-      continue;
-    }
-
-    cur += ch;
-  }
-  out.push(cur);
-  return out.map(s => (s ?? "").trim());
+function splitList(cell){
+  const s = lower(cell);
+  if(!s) return [];
+  // akzeptiert "homo, bi, pan" oder "homo,bi,pan"
+  return s.split(",").map(x=>x.trim()).filter(Boolean);
 }
 
-/* =========================
-   LOAD TASKS
-========================= */
-async function loadTasks(){
-  const response = await fetch("fragen.csv", { cache: "no-store" });
-  if(!response.ok) throw new Error("fragen.csv nicht gefunden (muss neben index.html liegen).");
-
-  const text = await response.text();
-  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
-
-  const header = lines.shift();
-  const headCols = parseCSVLine(header, ";").map(h => h.toLowerCase());
-  const idx = {
-    type: headCols.indexOf("type"),
-    text: headCols.indexOf("text"),
-    level: headCols.indexOf("level"),
-    wer: headCols.indexOf("wer"),
-    allowed: headCols.indexOf("allowed"),
-    target: headCols.indexOf("target"),
-    timer: headCols.indexOf("timer"),
-    zieltyp: headCols.indexOf("zieltyp")
-  };
-
-  // Minimaler Check
-  if(idx.type < 0 || idx.text < 0 || idx.level < 0){
-    throw new Error("CSV Header ungültig. Erwartet: type;text;level;wer;allowed;target;timer;zieltyp");
-  }
-
-  tasks = lines.map(line => {
-    const cols = parseCSVLine(line, ";");
-
-    const t = {
-      type: (cols[idx.type] || "").trim(),
-      text: (cols[idx.text] || "").trim(),
-      level: Number(cols[idx.level] || "0") || 0,
-      wer: (idx.wer >= 0 ? (cols[idx.wer] || "alle") : "alle").trim(),
-      allowed: (idx.allowed >= 0 ? (cols[idx.allowed] || "alle") : "alle").trim(),
-      target: (idx.target >= 0 ? (cols[idx.target] || "alle") : "alle").trim(),
-      timer: (idx.timer >= 0 ? (Number(cols[idx.timer] || "0") || 0) : 0),
-      zieltyp: (idx.zieltyp >= 0 ? (cols[idx.zieltyp] || "Selbst") : "Selbst").trim()
-    };
-
-    return t;
-  }).filter(t => t.type && t.text && t.level > 0);
-
-  // Debug (optional): console.log("Tasks loaded:", tasks.length);
-}
-
-/* =========================
-   PLAYER UI
-========================= */
-function addPlayer(){
-  const container = document.getElementById("players");
-  const div = document.createElement("div");
-  div.innerHTML = `
-    <input placeholder="Name" style="width:160px;">
-    <select>
-      <option>männlich</option>
-      <option>weiblich</option>
-      <option>nonbinär</option>
-    </select>
-    <select>
-      <option>hetero</option>
-      <option>homo</option>
-      <option>bi</option>
-      <option>pan</option>
-      <option>offen</option>
-    </select>
-  `;
-  container.appendChild(div);
-}
-
-function setPlayerCount(){
-  const n = parseInt(document.getElementById("playerCount").value, 10);
-  const container = document.getElementById("players");
-  container.innerHTML = "";
-  for(let i=0;i<n;i++) addPlayer();
-}
-
-function startGame(){
-  const container = document.getElementById("players").children;
-  players = [];
-
-  for(const p of container){
-    const name = p.children[0].value.trim();
-    const gender = p.children[1].value.trim();
-    const orientation = p.children[2].value.trim();
-    if(name) players.push({ name, gender, orientation });
-  }
-
-  if(players.length < 2){
-    alert("Mindestens 2 Spieler (mit Namen)!");
-    return;
-  }
-
-  currentIndex = 0;
-  document.getElementById("setup").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-  document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
-}
-
-function nextPlayer(){
-  currentIndex = (currentIndex + 1) % players.length;
-  document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
-  document.getElementById("result").classList.add("hidden");
-  hideTargets();
-  stopTaskTimer();
-}
-
-/* =========================
-   STRICT LOGIC
-========================= */
-
-// allowed: "alle" oder genau passende Orientierung (kein includes-Murks)
-function allowedMatches(taskAllowed, orientation){
-  const a = (taskAllowed || "alle").trim().toLowerCase();
-  const o = (orientation || "").trim().toLowerCase();
-
-  if(a === "alle") return true;
-
-  // Mehrfachwerte: "homo,bi,pan"
-  const rules = a.split(",").map(x => x.trim()).filter(Boolean);
-  return rules.includes(o);
-}
-
-// wer: "alle" oder muss exakt zum aktiven Gender passen
-function werMatches(taskWer, activeGender){
-  const w = (taskWer || "alle").trim().toLowerCase();
-  const g = (activeGender || "").trim().toLowerCase();
-  if(w === "alle") return true;
-  return w === g;
-}
-
-// target: "alle" oder Gender des Targets
-function targetGenderMatches(taskTarget, targetGender){
-  const t = (taskTarget || "alle").trim().toLowerCase();
-  const g = (targetGender || "").trim().toLowerCase();
-  if(t === "alle") return true;
-  return t === g;
-}
-
-// Orientierung kompatibel zwischen aktivem Spieler und Target
-function orientationCompatible(active, target){
-  const ao = (active.orientation || "").toLowerCase();
-  const ag = (active.gender || "").toLowerCase();
-  const tg = (target.gender || "").toLowerCase();
-
-  if(ao === "offen") return true;
-  if(ao === "bi" || ao === "pan") return true;
-
-  if(ao === "hetero") return ag !== tg;
-  if(ao === "homo") return ag === tg;
-
-  return false;
-}
-
-// potentielle Targets (andere Spieler), nach target+Orientierung gefiltert
-function eligibleTargetsForTask(task, activeIndex){
-  const active = players[activeIndex];
-  return players
-    .map((p, idx) => ({...p, idx}))
-    .filter(p => p.idx !== activeIndex)
-    .filter(p => targetGenderMatches(task.target, p.gender))
-    .filter(p => orientationCompatible(active, p));
-}
-
-// Zieltyp benötigt wie viele?
-function neededTargetsCount(zieltyp){
-  const z = (zieltyp || "Selbst").trim();
-  if(z === "Selbst") return 0;
-  if(z === "Einzel") return 1;
-  if(z === "Zwei") return 2;
-  if(z === "Gruppe") return 1; // mind. 1, nimmt dann alle
-  if(z === "BeliebigViele") return 2; // mind. 2 sinnvoll
-  return 0;
-}
-
-function taskMatches(task, type, level, activeIndex){
-  const active = players[activeIndex];
-
-  // Type + Level: EXAKT
-  if(task.type !== type) return false;
-  if(task.level !== level) return false;
-
-  // Wer: aktives Geschlecht muss passen
-  if(!werMatches(task.wer, active.gender)) return false;
-
-  // Allowed: aktives Orientation muss passen (exakt)
-  if(!allowedMatches(task.allowed, active.orientation)) return false;
-
-  // Zieltyp / Targets
-  const z = (task.zieltyp || "Selbst").trim();
-  const need = neededTargetsCount(z);
-  const eligible = eligibleTargetsForTask(task, activeIndex);
-
-  if(eligible.length < need) return false;
-
-  return true;
-}
-
-/* =========================
-   TARGET PICK & DISPLAY
-========================= */
 function shuffle(arr){
   const a = arr.slice();
   for(let i=a.length-1;i>0;i--){
@@ -374,23 +143,191 @@ function showTargets(names){
   box.innerHTML = `<b>Beteiligte:</b> ${formatNames(names)}`;
 }
 
-function pickTargetsForTask(task, activeIndex){
-  const zieltyp = (task.zieltyp || "Selbst").trim();
-  const eligible = shuffle(eligibleTargetsForTask(task, activeIndex));
+/* =========================
+   PLAYER SETUP UI
+========================= */
+function setPlayerCount(){
+  const n = parseInt(document.getElementById("playerCount").value, 10);
+  const container = document.getElementById("players");
+  container.innerHTML = "";
+  for(let i=0;i<n;i++) addPlayerRow();
+}
 
-  if(zieltyp === "Selbst") return [];
-  if(zieltyp === "Einzel") return eligible.slice(0,1).map(x => x.name);
-  if(zieltyp === "Zwei") return eligible.slice(0,2).map(x => x.name);
-  if(zieltyp === "Gruppe") return eligible.map(x => x.name);
+function addPlayerRow(){
+  const container = document.getElementById("players");
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <input placeholder="Name" style="width:170px;">
+    <select style="width:120px;">
+      <option>männlich</option>
+      <option>weiblich</option>
+      <option>nonbinär</option>
+    </select>
+    <select style="width:120px;">
+      <option>hetero</option>
+      <option>homo</option>
+      <option>bi</option>
+      <option>pan</option>
+      <option>offen</option>
+    </select>
+  `;
+  container.appendChild(div);
+}
 
-  if(zieltyp === "BeliebigViele"){
-    const n = eligible.length;
-    if(n <= 2) return eligible.map(x => x.name);
-    const count = 2 + Math.floor(Math.random() * (n - 1)); // 2..n
-    return eligible.slice(0, count).map(x => x.name);
+/* =========================
+   CSV LOAD (semicolon; tolerant)
+========================= */
+async function loadTasks(){
+  const response = await fetch('fragen.csv', { cache: "no-store" });
+  if(!response.ok) throw new Error("fragen.csv nicht gefunden (muss neben index.html liegen).");
+  const data = await response.text();
+  const lines = data.split(/\r?\n/).filter(l => l.trim().length > 0);
+  const header = lines.shift() || "";
+  const sep = header.includes(";") ? ";" : ",";
+
+  tasks = lines.map(line => {
+    const cols = line.split(sep).map(c => norm(c));
+    // expected: type;text;level;wer;allowed;target;timer;zieltyp
+    return {
+      type: cols[0] || "",
+      text: cols[1] || "",
+      level: parseInt(cols[2] || "0", 10) || 0,
+      wer: lower(cols[3] || "alle"),
+      allowedRaw: cols[4] || "alle",
+      allowed: lower(cols[4] || "alle"), // string
+      target: lower(cols[5] || "alle"),
+      timer: parseInt(cols[6] || "0", 10) || 0,
+      zieltyp: norm(cols[7] || "Selbst") || "Selbst"
+    };
+  }).filter(t => t.type && t.text && t.level > 0);
+}
+
+/* =========================
+   GAME FLOW
+========================= */
+function startGame(){
+  const rows = document.getElementById("players").children;
+  players = [];
+
+  for(const r of rows){
+    const name = norm(r.children[0].value);
+    const gender = norm(r.children[1].value);
+    const orientation = norm(r.children[2].value);
+    if(name){
+      players.push({name, gender, orientation});
+    }
   }
 
+  if(players.length < 2){
+    alert("Mindestens 2 Spieler (mit Namen)!");
+    return;
+  }
+
+  currentIndex = 0;
+  document.getElementById("setup").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+  document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
+
+  document.getElementById("result").classList.add("hidden");
+  hideTargets();
+  stopTaskTimer();
+}
+
+function nextPlayer(){
+  currentIndex = (currentIndex + 1) % players.length;
+  document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
+  document.getElementById("result").classList.add("hidden");
+  hideTargets();
+  stopTaskTimer();
+}
+
+/* =========================
+   STRICT MATCHING LOGIC
+========================= */
+
+// 1) Allowed: "alle" oder "offen" => alle, sonst Liste muss active.orientation exakt enthalten
+function allowedMatches(task, active){
+  const a = lower(task.allowed);
+  if(a === "alle" || a === "offen") return true;
+  const list = splitList(task.allowedRaw);
+  return list.includes(lower(active.orientation));
+}
+
+// 2) Wer: "alle" oder exakt active.gender
+function werMatches(task, active){
+  const w = lower(task.wer);
+  if(w === "alle") return true;
+  return w === lower(active.gender);
+}
+
+// 3) mögliche Targets (andere Spieler), nach Gender-Regel target ("alle" oder genau gender)
+function eligibleTargets(task, activeIndex){
+  const active = players[activeIndex];
+  const others = players
+    .map((p, idx)=>({ ...p, idx }))
+    .filter(p => p.idx !== activeIndex);
+
+  const tgt = lower(task.target);
+  if(tgt === "alle") return others;
+  return others.filter(o => lower(o.gender) === tgt);
+}
+
+// 4) zieltyp -> benötigte Anzahl Targets
+function requiredTargetCount(zieltyp, eligibleCount){
+  const z = norm(zieltyp) || "Selbst";
+  if(z === "Selbst") return 0;
+  if(z === "Einzel") return 1;
+  if(z === "Zwei") return 2;
+  if(z === "Gruppe") return Math.max(1, eligibleCount); // mindestens 1 sinnvoll
+  if(z === "BeliebigViele") return Math.min(2, eligibleCount); // Mindestlogik: 2, wenn möglich
+  return 0;
+}
+
+// 5) konkrete Targets ziehen (Namen)
+function pickTargets(task, activeIndex){
+  const z = norm(task.zieltyp) || "Selbst";
+  const pool = shuffle(eligibleTargets(task, activeIndex));
+
+  if(z === "Selbst") return [];
+
+  if(z === "Einzel"){
+    return pool.slice(0,1).map(x=>x.name);
+  }
+  if(z === "Zwei"){
+    return pool.slice(0,2).map(x=>x.name);
+  }
+  if(z === "Gruppe"){
+    return pool.map(x=>x.name);
+  }
+  if(z === "BeliebigViele"){
+    const n = pool.length;
+    if(n <= 2) return pool.map(x=>x.name);
+    const count = 2 + Math.floor(Math.random() * (n - 1)); // 2..n
+    return pool.slice(0, count).map(x=>x.name);
+  }
   return [];
+}
+
+// 6) Gesamtfilter: type exakt, level exakt, allowed strikt, wer strikt, und Zieltyp muss erfüllbar sein
+function isTaskValid(task, type, level, activeIndex){
+  const active = players[activeIndex];
+
+  if(norm(task.type) !== norm(type)) return false;
+  if(Number(task.level) !== Number(level)) return false; // EXAKT
+
+  if(!allowedMatches(task, active)) return false;
+  if(!werMatches(task, active)) return false;
+
+  const eligible = eligibleTargets(task, activeIndex);
+  const need = requiredTargetCount(task.zieltyp, eligible.length);
+
+  // Wenn need > 0, müssen auch genug Targets da sein
+  if(need > 0 && eligible.length < need) return false;
+
+  // Gruppe braucht zumindest 1 eligible (sonst sinnlos)
+  if(norm(task.zieltyp) === "Gruppe" && eligible.length < 1) return false;
+
+  return true;
 }
 
 /* =========================
@@ -399,10 +336,10 @@ function pickTargetsForTask(task, activeIndex){
 function draw(type){
   const level = Number(document.getElementById("level").value) || 1;
 
-  const valid = tasks.filter(t => taskMatches(t, type, level, currentIndex));
+  const valid = tasks.filter(t => isTaskValid(t, type, level, currentIndex));
 
   if(valid.length === 0){
-    alert("Keine passende Aufgabe gefunden (prüfe Level/wer/allowed/target/zieltyp).");
+    alert("Keine passende Aufgabe gefunden (für diesen Level/Spieler/Konstellation).");
     return;
   }
 
@@ -411,8 +348,8 @@ function draw(type){
   document.getElementById("taskText").innerText = chosen.text;
   document.getElementById("result").classList.remove("hidden");
 
-  const targetNames = pickTargetsForTask(chosen, currentIndex);
-  showTargets(targetNames);
+  const targets = pickTargets(chosen, currentIndex);
+  showTargets(targets);
 
   // Timer reset
   stopTaskTimer();
@@ -471,10 +408,8 @@ function renderTaskTimer() {
 /* =========================
    INIT
 ========================= */
-document.getElementById("playerCount").addEventListener("change", setPlayerCount);
-
 (async function init(){
-  setPlayerCount(); // erzeugt Spielerfelder passend zur Auswahl
+  setPlayerCount(); // baut Eingabefelder passend zur Dropdown-Zahl
   try{
     await loadTasks();
   }catch(e){
