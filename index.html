@@ -21,6 +21,25 @@
     border-radius:10px;
     display:none;
   }
+
+  .guardBox{
+    max-width:720px;
+    margin:14px auto 0;
+    text-align:left;
+    padding:12px 14px;
+    background:#1a1a1a;
+    border:1px solid #333;
+    border-radius:10px;
+    font-size:14px;
+  }
+  .guardBox label{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    margin:8px 0;
+    cursor:pointer;
+  }
+  .guardBox small{ color:#bbb; display:block; margin-left:26px; margin-top:2px; }
 </style>
 </head>
 <body>
@@ -41,7 +60,7 @@
   <h2>Spieler hinzufügen</h2>
   <div id="players"></div>
 
-  <h3>Level (EXAKT)</h3>
+  <h3>Level</h3>
   <select id="level">
     <option value="1">1 - Sanft</option>
     <option value="2">2 - Mittel</option>
@@ -49,6 +68,27 @@
     <option value="4">4 - Heavy</option>
     <option value="5">5 - Pervers & Dirty</option>
   </select>
+
+  <div class="guardBox">
+    <b>🔒 Ausschluss-Filter (Grundregeln)</b>
+    <label>
+      <input type="checkbox" id="guard_hetero_male_no_male" checked>
+      <span>Hetero-Mann: keine direkte Interaktion mit Männern</span>
+    </label>
+    <small>Blockt Paarungen „aktiver Spieler = männlich+hetero“ ↔ „Ziel = männlich“.</small>
+
+    <label>
+      <input type="checkbox" id="guard_homo_female_no_male" checked>
+      <span>Homo-Frau: keine Interaktion mit Männern</span>
+    </label>
+    <small>Blockt Paarungen „aktiver Spieler = weiblich+homo“ ↔ „Ziel = männlich“.</small>
+
+    <label>
+      <input type="checkbox" id="guard_homo_male_no_female" checked>
+      <span>Homo-Mann: keine Interaktion mit Frauen</span>
+    </label>
+    <small>Blockt Paarungen „aktiver Spieler = männlich+homo“ ↔ „Ziel = weiblich“.</small>
+  </div>
 
   <br><br>
   <button onclick="startGame()">Spiel starten</button>
@@ -61,7 +101,7 @@
   <button onclick="draw('Pflicht')">Pflicht</button>
 
   <div id="result" class="card hidden">
-    <p id="taskText" style="white-space:pre-line;"></p>
+    <p id="taskText"></p>
     <div id="targetsBox"></div>
 
     <div style="margin-top:12px;">
@@ -89,22 +129,19 @@
 </div>
 
 <script>
-/* =========================
-   STATE
-========================= */
+/* ---------------- State ---------------- */
 let players = [];
 let currentIndex = 0;
 let tasks = [];
 
-/* =========================
-   HELPERS
-========================= */
-function norm(s){ return (s ?? "").toString().trim().toLowerCase(); }
+/* ---------------- Helpers ---------------- */
+function norm(s){ return String(s ?? "").trim(); }
+function normLower(s){ return norm(s).toLowerCase(); }
 
-function parseList(s){
-  const v = norm(s);
+function parseList(csvField){
+  const v = normLower(csvField);
   if(!v || v === "alle") return ["alle"];
-  return v.split(",").map(x=>x.trim()).filter(Boolean);
+  return v.split(",").map(x => x.trim()).filter(Boolean);
 }
 
 function shuffle(arr){
@@ -132,28 +169,74 @@ function hideTargets(){
 function showTargets(names){
   const box = document.getElementById("targetsBox");
   if(!names || names.length === 0){
-    hideTargets(); return;
+    hideTargets();
+    return;
   }
   box.style.display = "block";
   box.innerHTML = `<b>Beteiligte:</b> ${formatNames(names)}`;
 }
 
-/* =========================
-   SETUP UI
-========================= */
-function setPlayerCount(){
-  const n = parseInt(document.getElementById("playerCount").value, 10) || 2;
-  const container = document.getElementById("players");
-  container.innerHTML = "";
-  for(let i=0;i<n;i++) addPlayerRow();
+/* ---------------- Guards (UI) ---------------- */
+function guards(){
+  return {
+    heteroMaleNoMale: !!document.getElementById("guard_hetero_male_no_male")?.checked,
+    homoFemaleNoMale: !!document.getElementById("guard_homo_female_no_male")?.checked,
+    homoMaleNoFemale: !!document.getElementById("guard_homo_male_no_female")?.checked
+  };
 }
 
-function addPlayerRow(){
-  const container = document.getElementById("players");
+/* ---------------- Grund-Ausschlussfilter ---------------- */
+function pairingAllowed(active, target){
+  const g = guards();
+
+  const aG = normLower(active.gender);
+  const aO = normLower(active.orientation);
+  const tG = normLower(target.gender);
+
+  if(g.heteroMaleNoMale){
+    if(aG === "männlich" && aO === "hetero" && tG === "männlich") return false;
+  }
+
+  if(g.homoFemaleNoMale){
+    if(aG === "weiblich" && aO === "homo" && tG === "männlich") return false;
+  }
+
+  if(g.homoMaleNoFemale){
+    if(aG === "männlich" && aO === "homo" && tG === "weiblich") return false;
+  }
+
+  return true;
+}
+
+/* ---------------- CSV Laden ---------------- */
+async function loadTasks(){
+  const response = await fetch('fragen.csv', { cache: "no-store" });
+  const data = await response.text();
+
+  const lines = data.split(/\r?\n/).filter(l => l.trim().length > 0);
+  lines.shift(); // header weg
+
+  tasks = lines.map(line => {
+    const cols = line.split(";");
+
+    return {
+      type: norm(cols[0]),
+      text: norm(cols[1]),
+      level: Number(norm(cols[2])) || 0,
+      wer: normLower(cols[3] || "alle"),
+      allowed: parseList(cols[4] || "alle"),
+      target: normLower(cols[5] || "alle"),
+      timer: Number(norm(cols[6])) || 0,
+      zieltyp: normLower(cols[7] || "selbst")
+    };
+  }).filter(t => t.type && t.text && t.level > 0);
+}
+
+/* ---------------- Spieler UI ---------------- */
+function addPlayerRow(container){
   const div = document.createElement("div");
-  div.style.marginBottom = "8px";
   div.innerHTML = `
-    <input placeholder="Name" style="width:140px;">
+    <input placeholder="Name">
     <select>
       <option>männlich</option>
       <option>weiblich</option>
@@ -170,53 +253,26 @@ function addPlayerRow(){
   container.appendChild(div);
 }
 
-/* =========================
-   CSV LOAD
-   Header: type;text;level;wer;allowed;target;timer;zieltyp
-========================= */
-async function loadTasks(){
-  const response = await fetch('fragen.csv', { cache: "no-store" });
-  if(!response.ok){
-    alert("fragen.csv nicht gefunden (muss neben index.html liegen).");
-    return;
-  }
-  const data = await response.text();
-  const lines = data.split(/\r?\n/).filter(l => l.trim().length > 0);
-  lines.shift(); // header
-
-  tasks = lines.map(line => {
-    const cols = line.split(";").map(c => (c ?? "").trim());
-    return {
-      type: cols[0] || "",
-      text: cols[1] || "",
-      level: parseInt(cols[2] || "0", 10) || 0,
-      wer: cols[3] || "alle",
-      allowed: cols[4] || "alle",
-      target: cols[5] || "alle",
-      timer: parseInt(cols[6] || "0", 10) || 0,
-      zieltyp: (cols[7] || "Selbst").trim() || "Selbst"
-    };
-  }).filter(t => t.type && t.text && t.level > 0);
+function setPlayerCount(){
+  const n = Number(document.getElementById("playerCount").value) || 2;
+  const container = document.getElementById("players");
+  container.innerHTML = "";
+  for(let i=0;i<n;i++) addPlayerRow(container);
 }
 
-/* =========================
-   GAME FLOW
-========================= */
 function startGame(){
-  const container = document.getElementById("players").children;
+  const rows = document.getElementById("players").children;
   players = [];
 
-  for(let p of container){
-    const name = (p.children[0].value || "").trim();
-    const gender = (p.children[1].value || "").trim();
-    const orientation = (p.children[2].value || "").trim();
-    if(name){
-      players.push({name, gender, orientation});
-    }
+  for(const r of rows){
+    const name = norm(r.children[0].value);
+    const gender = norm(r.children[1].value);
+    const orientation = norm(r.children[2].value);
+    if(name) players.push({name, gender, orientation});
   }
 
   if(players.length < 2){
-    alert("Mindestens 2 Spieler!");
+    alert("Mindestens 2 Spieler (mit Namen)!");
     return;
   }
 
@@ -224,6 +280,10 @@ function startGame(){
   document.getElementById("setup").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
   document.getElementById("currentPlayer").innerText = players[currentIndex].name + " ist dran";
+
+  document.getElementById("result").classList.add("hidden");
+  hideTargets();
+  stopTaskTimer();
 }
 
 function nextPlayer(){
@@ -234,136 +294,97 @@ function nextPlayer(){
   stopTaskTimer();
 }
 
-/* =========================
-   ELIGIBILITY (CSV)
-========================= */
-function activeMatchesWer(task, active){
-  const w = norm(task.wer);
-  if(!w || w === "alle") return true;
-  return w === norm(active.gender);
-}
-
-function activeMatchesAllowed(task, active){
-  const allowed = parseList(task.allowed);
-  if(allowed.includes("alle")) return true;
-  return allowed.includes(norm(active.orientation));
-}
-
+/* ---------------- Target Auswahl ---------------- */
 function eligibleTargetsForTask(task, activeIndex){
+  const active = players[activeIndex];
+
   const others = players
     .map((p, idx) => ({...p, idx}))
     .filter(p => p.idx !== activeIndex);
 
-  // target = alle oder target = gender
-  const tgt = norm(task.target);
-  if(!tgt || tgt === "alle") return others;
+  const byGender = others.filter(o => task.target === "alle" || normLower(o.gender) === task.target);
 
-  return others.filter(o => norm(o.gender) === tgt);
+  const allowedByGuard = byGender.filter(o => pairingAllowed(active, o));
+
+  return allowedByGuard;
 }
 
-function neededTargets(task){
-  const z = norm(task.zieltyp || "selbst");
-  if(z === "selbst") return 0;
-  if(z === "einzel") return 1;
-  if(z === "zwei") return 2;
-  if(z === "gruppe") return 1;        // mindestens 1
-  if(z === "beliebigviele") return 2; // mindestens 2
-  return 0;
+function neededTargets(zieltyp){
+  if(zieltyp === "einzel") return 1;
+  if(zieltyp === "zwei") return 2;
+  if(zieltyp === "gruppe") return 1;
+  if(zieltyp === "beliebigviele") return 2;
+  return 0; // selbst
 }
 
 function pickTargetsForTask(task, activeIndex){
-  const z = norm(task.zieltyp || "selbst");
+  const zieltyp = task.zieltyp || "selbst";
   const eligible = shuffle(eligibleTargetsForTask(task, activeIndex));
 
-  if(z === "selbst") return [];
-  if(z === "einzel") return eligible.slice(0, 1).map(x => x.name);
-  if(z === "zwei") return eligible.slice(0, 2).map(x => x.name);
-  if(z === "gruppe") return eligible.map(x => x.name);
+  if(zieltyp === "selbst") return [];
+  if(zieltyp === "einzel") return eligible.slice(0, 1).map(x => x.name);
+  if(zieltyp === "zwei") return eligible.slice(0, 2).map(x => x.name);
+  if(zieltyp === "gruppe") return eligible.map(x => x.name);
 
-  if(z === "beliebigviele"){
+  if(zieltyp === "beliebigviele"){
     const n = eligible.length;
     if(n <= 2) return eligible.map(x => x.name);
-    const count = 2 + Math.floor(Math.random() * (n - 1)); // 2..n
+    const count = 2 + Math.floor(Math.random() * (n - 1));
     return eligible.slice(0, count).map(x => x.name);
   }
   return [];
 }
 
-/* =========================
-   GLOBAL EXCLUSION FILTER (HARD)
-   - Hetero Mann: niemals target=männlich (bei zieltyp != Selbst)
-   - Homo Mann: niemals target=weiblich (bei zieltyp != Selbst)
-   - Homo Frau: niemals target=männlich (bei zieltyp != Selbst)
-========================= */
-function excludedByHardRules(task, active){
-  const z = norm(task.zieltyp || "selbst");
-  if(z === "selbst") return false;
+/* ---------------- Core: Draw ---------------- */
+function activeAllowedByTask(task, active){
+  // wer: aktive Person muss passen
+  if(task.wer !== "alle" && task.wer !== normLower(active.gender)) return false;
 
-  const g = norm(active.gender);
-  const o = norm(active.orientation);
-  const target = norm(task.target);
-
-  // Hetero Mann darf keine direkte Mann-Interaktion
-  if(g === "männlich" && o === "hetero" && target === "männlich") return true;
-
-  // Homo Mann nicht mit Frau
-  if(g === "männlich" && o === "homo" && target === "weiblich") return true;
-
-  // Homo Frau nicht mit Mann
-  if(g === "weiblich" && o === "homo" && target === "männlich") return true;
-
-  return false;
+  // allowed: "alle" oder Liste; "offen" behandeln wir als alle
+  const aOri = normLower(active.orientation);
+  if(aOri === "offen") return true;
+  if(task.allowed.includes("alle")) return true;
+  return task.allowed.includes(aOri);
 }
 
-/* =========================
-   DRAW (STRICT)
-   - Level: EXAKT
-   - Hard exclusions
-   - Zieltyp-Minimum beachten
-========================= */
 function draw(type){
-  const level = Number(document.getElementById("level").value) || 1; // EXAKT
+  const selectedLevel = Number(document.getElementById("level").value) || 1;
   const active = players[currentIndex];
 
-  // 1) Grundfilter (type + exact level + wer + allowed)
-  let candidates = tasks.filter(t =>
-    norm(t.type) === norm(type) &&
-    Number(t.level) === Number(level) &&
-    activeMatchesWer(t, active) &&
-    activeMatchesAllowed(t, active) &&
-    !excludedByHardRules(t, active)
-  );
+  // STRIKT: Level exakt
+  const pool = tasks.filter(t => {
+    if(normLower(t.type) !== normLower(type)) return false;
+    if(Number(t.level) !== selectedLevel) return false;
+    if(!activeAllowedByTask(t, active)) return false;
 
-  // 2) Zieltyp-Minimum / Targets möglich
-  candidates = candidates.filter(t => {
-    const need = neededTargets(t);
-    const eligible = eligibleTargetsForTask(t, currentIndex).length;
-    return eligible >= need;
+    const need = neededTargets(t.zieltyp);
+    const eligibleCount = eligibleTargetsForTask(t, currentIndex).length;
+
+    if(need > 0 && eligibleCount < need) return false;
+    if(t.zieltyp === "gruppe" && eligibleCount < 1) return false;
+
+    return true;
   });
 
-  if(candidates.length === 0){
-    alert("Keine passende Aufgabe gefunden (Filter/Level/Targets).");
+  if(pool.length === 0){
+    alert("Keine passende Aufgabe gefunden (Level/Allowed/Wer/Targets/Filter).");
     return;
   }
 
-  const chosen = candidates[Math.floor(Math.random()*candidates.length)];
+  const chosen = pool[Math.floor(Math.random() * pool.length)];
 
   document.getElementById("taskText").innerText = chosen.text;
   document.getElementById("result").classList.remove("hidden");
 
-  // Targets anzeigen
-  const targetNames = pickTargetsForTask(chosen, currentIndex);
-  showTargets(targetNames);
+  const targets = pickTargetsForTask(chosen, currentIndex);
+  showTargets(targets);
 
-  // Timer reset
   stopTaskTimer();
   document.getElementById("timer").innerText = "";
   document.getElementById("timerInputMinutes").value = "0";
 }
 
-/* =========================
-   TIMER
-========================= */
+/* ---------------- Timer ---------------- */
 let taskTimerInterval = null;
 let taskTimerRemaining = 0;
 
@@ -409,13 +430,9 @@ function renderTaskTimer() {
     "Timer: " + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
 }
 
-/* =========================
-   INIT
-========================= */
-(async function init(){
-  setPlayerCount();
-  await loadTasks();
-})();
+/* ---------------- Init ---------------- */
+setPlayerCount();
+loadTasks();
 </script>
 
 </body>
